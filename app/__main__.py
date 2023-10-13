@@ -1,12 +1,18 @@
+import asyncio
 import logging
 import sched, time
 
 from datetime import datetime
 from pathlib import Path
-from aiogram import executor
-from bot.handlers import *
+from app.dispatcher import bot, dp
+from app.handlers import base
 
-def main():
+async def main():
+    dp.include_router(base.router)
+
+    await dp.start_polling(bot, skip_updates=True)
+
+if __name__ == '__main__':
     log_name = f'logs/{datetime.now().strftime("%Y-%m-%d")}.log'
     Path(log_name).parent.mkdir(parents=True, exist_ok=True)
 
@@ -15,8 +21,4 @@ def main():
         filename=log_name,
         filemode="a"
     )
-
-    executor.start_polling(dp, skip_updates=True)
-
-if __name__ == "__main__":
-    main()
+    asyncio.run(main())

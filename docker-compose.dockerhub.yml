@@ -3,7 +3,6 @@ services:
   db:
     container_name: db
     image: luck3rinc/keepinventory_db:latest
-    build: ./postgresql
     restart: always
     environment:
       POSTGRES_USER: $USER
@@ -20,15 +19,14 @@ services:
     image: dpage/pgadmin4
     restart: always
     environment:
-      PGADMIN_DEFAULT_EMAIL: example@ex.com
-      PGADMIN_DEFAULT_PASSWORD: 12345
+      PGADMIN_DEFAULT_EMAIL: $MAIL
+      PGADMIN_DEFAULT_PASSWORD: $PASS
     ports:
       - "80:80"
 
   main:
     container_name: keepinventory_main
     image: luck3rinc/keepinventory:latest
-    build: ./app
     restart: on-failure
     environment:
       API_TOKEN: $API_TOKEN

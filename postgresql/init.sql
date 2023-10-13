@@ -1,13 +1,39 @@
-CREATE TABLE inventory(
+CREATE TABLE devices(
     id SERIAL PRIMARY KEY,
-    group VARCHAR,
-    subgroup VARCHAR,
-    title VARCHAR,
+    articleNumber BIGINT UNIQUE,
+    category VARCHAR,
+    subcategory VARCHAR,
+    name VARCHAR,
     quantity BIGINT,
-    serialkey BIGINT,
-    recordyear INT,
-    helder VARCHAR,
-    releaseyear INT,
-    cabinet VARCHAR);
+    productionYear INT,
+    accountingYear INT,
+    location VARCHAR(255),
+    ownership VARCHAR(255),
+    photo VARCHAR);
 
-COPY inventory(group, subgroup, title, quantity, serialkey, recordyear, helder, releaseyear, cabinet) FROM '/docker-entrypoint-initdb.d/data.csv' DELIMITER ',' CSV HEADER;
+CREATE TABLE problematicDevices(
+    id SERIAL PRIMARY KEY,
+    status BOOLEAN,
+    articleNumber BIGINT UNIQUE,
+    problemDescription VARCHAR,
+    solutionDescription VARCHAR,
+    photo VARCHAR,
+    document VARCHAR,
+    userid BIGINT);
+
+CREATE TABLE users(
+    id SERIAL PRIMARY KEY,
+    userid BIGINT UNIQUE,
+    role VARCHAR(8));
+
+CREATE TABLE notes(
+    id SERIAL PRIMARY KEY,
+    userid BIGINT,
+    header VARCHAR,
+    description VARCHAR);
+
+CREATE TABLE software(
+    id SERIAL PRIMARY KEY,
+    userid BIGINT,
+    filename VARCHAR,
+    description VARCHAR);
