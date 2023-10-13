@@ -5,10 +5,10 @@ import sched, time
 from datetime import datetime
 from pathlib import Path
 from app.dispatcher import bot, dp
-from app.handlers import base
+from app.handlers import base, admin
 
 async def main():
-    dp.include_router(base.router)
+    dp.include_routers(base.router, admin.router)
 
     await dp.start_polling(bot, skip_updates=True)
 
