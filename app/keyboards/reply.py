@@ -1,19 +1,11 @@
 from aiogram import types
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
-def stranger_menu():
-    buttons = ["Контакты", "GitHub"]
-    builder = ReplyKeyboardBuilder()
-    for button in buttons:
-        builder.add(types.KeyboardButton(text = button))
-    builder.adjust(2)
+def reply_row_menu(items):
+    row = [types.KeyboardButton(text=item) for item in items]
+    return types.ReplyKeyboardMarkup(keyboard=[row], resize_keyboard=True)
 
-    return builder.as_markup(resize_keyboard=True)
-
-def main_menu():
-    buttons = ["Поиск по штрих-коду", "Поиск по номеру",
-    "Поиск по аудитории", "Заметки", "Программное обеспечение",
-    "Проблемные устройства"]
+def reply_column_menu(buttons):
     builder = ReplyKeyboardBuilder()
     for button in buttons:
         builder.add(types.KeyboardButton(text = button))
