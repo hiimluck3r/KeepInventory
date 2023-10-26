@@ -6,9 +6,9 @@ services:
     build: ./postgresql
     restart: always
     environment:
-      POSTGRES_USER: $USER
-      POSTGRES_PASSWORD: $PASSWORD
-      POSTGRES_DB: $DB
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: postgres
     ports:
       - "5432:5432"
     volumes:
@@ -20,7 +20,7 @@ services:
     image: dpage/pgadmin4
     restart: always
     environment:
-      PGADMIN_DEFAULT_EMAIL: example@ex.com
+      PGADMIN_DEFAULT_EMAIL: root@r.com
       PGADMIN_DEFAULT_PASSWORD: 12345
     ports:
       - "80:80"
@@ -32,12 +32,12 @@ services:
     restart: on-failure
     environment:
       API_TOKEN: $API_TOKEN
-      HOST: $HOST
-      DB: $DB
-      USER: $USER
-      PASSWORD: $PASSWORD
+      HOST: db
+      DB: postgres
+      DBUSER: root
+      PASSWORD: root
       ROOT: $ROOT
-      PORT: $PORT
+      PORT: 5432
     volumes:
       - ./logs:/~/KeepInventory/logs
     depends_on:

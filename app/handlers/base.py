@@ -1,16 +1,19 @@
 import asyncio
 from aiogram import types, Router, F
-from app.dispatcher import dp, bot
+from app.loader import dp, bot
 from app import greet_stranger_text, greet_user_text
 from app.roles import spectator
 from app.keyboards.reply import reply_column_menu
 from aiogram.filters.command import Command
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
 
 router = Router()
 
 @router.message(Command("start"))
 @router.message(F.text=="Главное меню")
-async def get_start(message: types.Message):
+async def get_start(message: types.Message, state: FSMContext):
+    await state.clear()
     if message.from_user.id not in spectator:
         await message.answer(greet_stranger_text, parse_mode='HTML', reply_markup = reply_column_menu(["Контакты", "GitHub"]))
     else:

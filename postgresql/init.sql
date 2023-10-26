@@ -1,7 +1,7 @@
 CREATE TABLE devices(
     id SERIAL PRIMARY KEY,
     articleNumber BIGINT UNIQUE,
-    category VARCHAR,
+    category VARCHAR, 
     subcategory VARCHAR,
     name VARCHAR,
     quantity BIGINT,
@@ -10,30 +10,34 @@ CREATE TABLE devices(
     location VARCHAR(255),
     ownership VARCHAR(255),
     photo VARCHAR);
-
-CREATE TABLE problematicDevices(
-    id SERIAL PRIMARY KEY,
-    status BOOLEAN,
-    articleNumber BIGINT UNIQUE,
-    problemDescription VARCHAR,
-    solutionDescription VARCHAR,
-    photo VARCHAR,
-    document VARCHAR,
-    userid BIGINT);
+    
+--I mean, we can create another table with categories
+--So there won't be any duplicates
+--But it's harder to modify specific item, so I'll leave it be in terms of flexibility
 
 CREATE TABLE users(
     id SERIAL PRIMARY KEY,
     userid BIGINT UNIQUE,
-    role VARCHAR(8));
+    role VARCHAR(10));
+
+CREATE TABLE problematicDevices(
+    id SERIAL PRIMARY KEY,
+    status BOOLEAN,
+    articleNumber BIGINT UNIQUE REFERENCES devices(articleNumber),
+    problemDescription VARCHAR,
+    solutionDescription VARCHAR,
+    photo VARCHAR,
+    document VARCHAR,
+    userid BIGINT REFERENCES users(userid));
 
 CREATE TABLE notes(
     id SERIAL PRIMARY KEY,
-    userid BIGINT,
+    userid BIGINT REFERENCES users(userid),
     header VARCHAR,
     description VARCHAR);
 
 CREATE TABLE software(
     id SERIAL PRIMARY KEY,
-    userid BIGINT,
+    userid BIGINT REFERENCES users(userid),
     filename VARCHAR,
     description VARCHAR);

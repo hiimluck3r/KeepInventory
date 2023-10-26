@@ -1,28 +1,29 @@
 import asyncio
-from app.db.connection import *
-from app import ROOT
+from app.db.operations import get_users_by_role
+from app import ROOT, loop
 import sys
 
-pool = ''
-worker = ''
-spectator = ''
-admin = ''
+async def update_users():
+    tasks = []
+    roles = ["admin", "worker", "spectator"]
+    users = {}
 
-async def get_users():
-    global pool, admin, worker, spectator
-    pool = await connector()
-    async with pool.acquire() as connection:
-        async with connection.transaction():
-            admin = await connection.fetch(f"SELECT userid FROM users WHERE role = 'root'")
-            worker = await connection.fetch(f"SELECT userid FROM users WHERE role = 'worker'")
-            spectator = await connection.fetch(f"SELECT userid FROM users WHERE role = 'spectator'")
-            admin.append(ROOT) #basically any admin == root, but only root can manage admins
-            worker += admin #admins == workers but not vice verse
-            spectator += (worker) #same goes to spectators, since we've got admins in workers, it works just as fine as we want
+    for role in roles:
+        task = asyncio.create_task(get_users_by_role(role))
+        tasks.append(task)
 
-            return pool, admin, worker, spectator
+    users['admin'], users['worker'], users['spectator'] = await asyncio.gather(*tasks)    
+    users['admin'].append(ROOT)
+    users['worker'] += users['admin']
+    users['spectator'] += users['worker']
 
-asyncio.run(get_users())
-print(f"Admins: {admin}", file=sys.stderr)
-print(f"Workers: {worker}", file=sys.stderr)
-print(f"Spectators: {spectator}", file=sys.stderr)
+    print(f"Admins: {users['admin']}", file=sys.stderr)
+    print(f"Workers: {users['worker']}", file=sys.stderr)
+    print(f"Spectators: {users['spectator']}", file=sys.stderr)
+
+    return users
+
+users = loop.run_until_complete(update_users())
+admin = users["admin"]
+worker = users["worker"]
+spectator = users["spectator"]

@@ -11,10 +11,29 @@ def get_dashboard_menu():
         types.InlineKeyboardButton(text="Просмотреть логи", callback_data="logs")
     ]
     
-    for i in range(0, len(buttons), 2):
+    for i in range(0, len(buttons)-1, 2):
         builder.row(buttons[i], buttons[i+1])
 
     if len(buttons)%2==1:
-        builder.row(buttons[i-1])
+        builder.row(buttons[-1])
 
+    return builder.as_markup()
+
+def inline_column_menu(buttons):
+    builder = InlineKeyboardBuilder()
+    
+    for i in range(0, len(buttons)-1, 2):
+        builder.row(buttons[i], buttons[i+1])
+
+    if len(buttons)%2==1:
+        builder.row(buttons[-1])
+
+    return builder.as_markup()
+
+def inline_row_menu(buttons):
+    builder = InlineKeyboardBuilder()
+    
+    for button in buttons:
+        builder.row(button)
+    builder.adjust(len(buttons), 0)
     return builder.as_markup()

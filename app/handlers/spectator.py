@@ -1,11 +1,11 @@
 import asyncio
 import os
 from aiogram import types, Router, F
-from app.dispatcher import dp, bot
-from app.roles import spectator
+from app.loader import dp, bot
+from app.roles import spectator, worker
 from app import ROOT
 from app.keyboards.reply import *
-from app.keyboards.inline import get_dashboard_menu
+from app.keyboards.inline import get_dashboard_menu, inline_row_menu
 from aiogram.filters.command import Command
 from app.barcodes.barcode_reader import get_code
 from app.states.spectator_states import BarcodeImage
@@ -26,7 +26,8 @@ async def barcode_processing(message: types.Message, state: FSMContext):
     await bot.download(message.photo[-1], destination = filepath)
     status, data = await get_code(filepath)
     if status == 0:
-        await message.answer(f"Код: {data}", reply_markup=reply_row_menu(["Главное меню"]))
+        buttons = [types.InlineKeyboardButton(text="Создать новую запись", callback_data=f"create.{data}")]
+        await message.answer(f"Код: {data}", reply_markup=inline_row_menu(buttons))
         os.remove(filepath)
         await state.clear()
     else:

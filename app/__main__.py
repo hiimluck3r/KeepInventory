@@ -4,13 +4,16 @@ import sched, time
 
 from datetime import datetime
 from pathlib import Path
-from app.dispatcher import bot, dp
+from app.loader import bot, dp
+from app.db import database
+from app import loop
+
 from app.handlers import base, admin, worker, spectator, errors
 
 async def main():
     dp.include_routers(base.router, admin.router, spectator.router, worker.router, errors.router)
-
-    await dp.start_polling(bot, skip_updates=True)
+    await bot.delete_webhook(drop_pending_updates=True)
+    await dp.start_polling(bot)
 
 if __name__ == '__main__':
     log_name = f'logs/{datetime.now().strftime("%Y-%m-%d")}.log'
@@ -21,4 +24,5 @@ if __name__ == '__main__':
         filename=log_name,
         filemode="a"
     )
-    asyncio.run(main())
+    loop.run_until_complete(database.create_pool()) #that was utterly freaking stupid, I hope I will never code again
+    loop.run_until_complete(main())
