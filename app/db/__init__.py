@@ -14,6 +14,7 @@ class DatabaseClass:
     async def execute(self, command: str, *args, fetch: bool = False, fetchval: bool = False, fetchrow: bool = False, execute: bool = False):
         if self.pool is None:
             await self.create_pool()
+        result = None
         async with self.pool.acquire() as connection:
             async with connection.transaction():
                 if fetch:

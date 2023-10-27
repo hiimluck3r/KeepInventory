@@ -20,3 +20,7 @@ async def get_start(message: types.Message, state: FSMContext):
         await message.answer(greet_user_text, parse_mode='HTML', reply_markup = reply_column_menu(["Поиск по штрих-коду", "Поиск по номеру",
     "Поиск по аудитории", "Заметки", "Программное обеспечение",
     "Проблемные устройства"]))
+
+@router.message(Command("id"))
+async def my_id(message: types.Message):
+    await message.answer(f"```{message.from_user.id}```", parse_mode="MarkdownV2")

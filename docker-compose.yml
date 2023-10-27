@@ -39,6 +39,7 @@ services:
       ROOT: $ROOT
       PORT: 5432
     volumes:
+      - ./app:/~/KeepInventory/app
       - ./logs:/~/KeepInventory/logs
     depends_on:
       - db
