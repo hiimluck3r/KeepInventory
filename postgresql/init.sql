@@ -1,6 +1,6 @@
 CREATE TABLE devices(
     id SERIAL PRIMARY KEY,
-    articleNumber BIGINT UNIQUE,
+    articleNumber VARCHAR UNIQUE,
     category VARCHAR, 
     subcategory VARCHAR,
     name VARCHAR,
@@ -23,7 +23,7 @@ CREATE TABLE users(
 CREATE TABLE problematicDevices(
     id SERIAL PRIMARY KEY,
     status BOOLEAN,
-    articleNumber BIGINT UNIQUE REFERENCES devices(articleNumber),
+    articleNumber VARCHAR UNIQUE REFERENCES devices(articleNumber),
     problemDescription VARCHAR,
     solutionDescription VARCHAR,
     photo VARCHAR,
