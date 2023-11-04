@@ -14,24 +14,16 @@ async def custom_sql(sql, fetch: bool = False, fetchval: bool = False, fetchrow:
     if fetch:
         result = await database.execute(sql, fetch=True)
         for row in result:
-            a = []
-            values.append(a)
+            new_row = []
+            values.append(new_row)
             for field in row:
-                a.append(field)
+                new_row.append(field)
     elif fetchval:
-        result = await database.execute(sql, fetchval=True)
-        for row in result:
-            a = []
-            values.append(a)
-            for field in row:
-                a.append(field)
+        values = await database.execute(sql, fetchval=True)
     elif fetchrow:
         result = await database.execute(sql, fetchrow=True)
-        for row in result:
-            a = []
-            values.append(a)
-            for field in row:
-                a.append(field)
+        for element in result:
+            values.append(element)
     elif execute:
         values = await database.execute(sql, execute=True)
     return values

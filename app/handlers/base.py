@@ -11,7 +11,7 @@ from aiogram.fsm.state import State, StatesGroup
 router = Router()
 
 @router.message(Command("start"))
-@router.message(F.text=="Главное меню")
+@router.message(F.text.lower()=="главное меню")
 async def get_start(message: types.Message, state: FSMContext):
     await state.clear()
     if message.from_user.id not in spectator:

@@ -12,7 +12,7 @@ CREATE TABLE devices(
     photo VARCHAR);
     
 --I mean, we can create another table with categories
---So there won't be any duplicates
+--So there won't be any naming duplicates
 --But it's harder to modify specific item, so I'll leave it be in terms of flexibility
 
 CREATE TABLE users(
