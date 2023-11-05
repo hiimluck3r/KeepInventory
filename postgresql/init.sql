@@ -18,7 +18,7 @@ CREATE TABLE devices(
 CREATE TABLE users(
     id SERIAL PRIMARY KEY,
     userid BIGINT UNIQUE,
-    role VARCHAR(10));
+    role BIGINT);
 
 CREATE TABLE problematicDevices(
     id SERIAL PRIMARY KEY,

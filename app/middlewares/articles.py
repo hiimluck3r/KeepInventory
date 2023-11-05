@@ -20,25 +20,23 @@ async def problematic_device_guard(articleNumber):
         return False
 
 async def get_device_info(articleNumber):
-    sql = f"SELECT 1 FROM devices WHERE articleNumber = '{articleNumber}'"
+    sql = f"SELECT * FROM devices WHERE articleNumber = '{articleNumber}'"
     result = await custom_sql(sql, fetchrow=True)
+    print(f"resulting row at the device info is: {result}", file=sys.stderr)
     device_info = f"Информация об устройстве: {articleNumber}\n"
-    device_attributes = [device_id, articleNumber, category, subcategory, name, quantity, productionYear, accountingYear, location, ownership, photo]
-    for index, attribute in enumerate(device_attributes):
-        attribute = result[index]
     
-    device_info+=f"\nID устройства: {device_attributes[0]}"
-    device_info+=f"\nАртикул: {device_attributes[1]}"
-    device_info+=f"\nКатегория: {device_attributes[2]}"
-    device_info+=f"\nПодкатегория: {device_attributes[3]}"
-    device_info+=f"\nНазвание: {device_attributes[4]}"
-    device_info+=f"\nКоличество (шт.): {device_attributes[5]}"
-    device_info+=f"\nГод производства: {device_attributes[6]}"
-    device_info+=f"\nГод постановки на учёт: {device_attributes[7]}"
-    device_info+=f"\nМестонахождение: {device_attributes[8]}"
+    device_info+=f"\nID устройства: {result[0]}"
+    device_info+=f"\nАртикул: {result[1]}"
+    device_info+=f"\nКатегория: {result[2]}"
+    device_info+=f"\nПодкатегория: {result[3]}"
+    device_info+=f"\nНазвание: {result[4]}"
+    device_info+=f"\nКоличество (шт.): {result[5]}"
+    device_info+=f"\nГод производства: {result[6]}"
+    device_info+=f"\nГод постановки на учёт: {result[7]}"
+    device_info+=f"\nМестонахождение: {result[8]}"
     #photoURL should be here but not yet
-    if problematic_device_guard(articleNumber):
-        device_info+=f'\n\n*Является "проблемным" устройством.*'
+    if (await problematic_device_guard(articleNumber)):
+        device_info+=f'\n\n<b>Является "проблемным" устройством.</b>'
 
     return device_info
 
