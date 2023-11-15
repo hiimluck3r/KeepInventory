@@ -25,15 +25,17 @@ async def get_device_info(articleNumber):
     print(f"resulting row at the device info is: {result}", file=sys.stderr)
     device_info = f"Информация об устройстве: {articleNumber}\n"
     
-    device_info+=f"\nID устройства: {result[0]}"
-    device_info+=f"\nАртикул: {result[1]}"
-    device_info+=f"\nКатегория: {result[2]}"
-    device_info+=f"\nПодкатегория: {result[3]}"
-    device_info+=f"\nНазвание: {result[4]}"
-    device_info+=f"\nКоличество (шт.): {result[5]}"
-    device_info+=f"\nГод производства: {result[6]}"
-    device_info+=f"\nГод постановки на учёт: {result[7]}"
-    device_info+=f"\nМестонахождение: {result[8]}"
+    device_info+=f"\nID устройства: {result['id']}"
+    device_info+=f"\nАртикул: {result['articleNumber']}"
+    device_info+=f"\nКатегория: {result['category']}"
+    device_info+=f"\nПодкатегория: {result['subcategory']}"
+    device_info+=f"\nНазвание: {result['name']}"
+    device_info+=f"\nКоличество (шт.): {result['quantity']}"
+    device_info+=f"\nГод производства: {result['productionYear']}"
+    device_info+=f"\nГод постановки на учёт: {result['accoutingYear']}"
+    device_info+=f"\nМестонахождение: {result['location']}"
+    device_info+=f"\nВладение: {result['ownership']}"
+    
     #photoURL should be here but not yet
     if (await problematic_device_guard(articleNumber)):
         device_info+=f'\n\n<b>Является "проблемным" устройством.</b>'
@@ -45,7 +47,7 @@ async def multiple_articles(articleNumberIncomplete):
     articles = await custom_sql(sql, fetch=True)
     
     if articles:
-        answer_text = f"Артикулы с подстрокой {message.text}:\n"
+        answer_text = f"Артикулы с подстрокой {articleNumberIncomplete}:\n"
         for i in range(len(articles)):
             index = articles[i]['id']
             item = articles[i]['articleNumber']
@@ -53,4 +55,4 @@ async def multiple_articles(articleNumberIncomplete):
         answer_text+=f"\nВведите номер интересующего вас артикула:"
         return True, answer_text
     else:
-        return False, f"Артикулов с подстрокой {message.text} не найдено."
+        return False, f"Артикулов с подстрокой {articleNumberIncomplete} не найдено."
