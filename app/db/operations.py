@@ -20,20 +20,19 @@ async def custom_sql(sql, fetch: bool = False, fetchval: bool = False, fetchrow:
     result = None
     if fetch:
         result = await database.execute(sql, fetch=True)
-        for row in result:
-            new_row = []
-            values.append(new_row)
-            for field in row:
-                new_row.append(field)
+        values = [dict(row) for row in result]
     elif fetchval:
         values = await database.execute(sql, fetchval=True)
     elif fetchrow:
         result = await database.execute(sql, fetchrow=True)
-        for element in result:
-            values.append(element)
+        values = [element for element in result]
     elif execute:
         values = await database.execute(sql, execute=True)
-    return values
+    
+    if values:
+        return values
+    else:
+        return None
 
 async def get_users_by_role(role):
     

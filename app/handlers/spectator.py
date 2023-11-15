@@ -46,14 +46,14 @@ async def users_list(message: types.Message, command: CommandObject):
     for row in users:
         role = None
 
-        if row[2] == 2:
+        if row['role'] == 2:
             role = "Admin"
-        elif row[2] == 1:
+        elif row['role'] == 1:
             role = "Worker"
-        elif row[2] == 0:
+        elif row['role'] == 0:
             role = "Spectator"
 
-        result+=f"\n{await get_username(row[1])} - {row[1]} - {role}"
+        result+=f"\n{await get_username(row['userid'])} - {row['userid']} - {role}"
     await message.answer(result)
 
 """
@@ -71,7 +71,7 @@ async def barcode_processing(message: types.Message, state: FSMContext):
     await bot.download(message.photo[-1], destination = filepath)
     status, data = await get_code(filepath) #if successful, then data == articleNumber
     os.remove(filepath)
-    if status == 0:
+    if status:
         if not(await article_guard(data)):
             #If article doesn't exist
             #If user is worker, then allow them to make records here
@@ -80,6 +80,7 @@ async def barcode_processing(message: types.Message, state: FSMContext):
                 await message.answer(f"Устройство с артикулом: {data} не было найдено.", reply_markup=inline_row_menu(buttons))
             else:
                 await message.answer(f"Устройство с артикулом: {data} не было найдено.", reply_markup=reply_row_menu(["Отмена"]))
+            await state.clear()
         
         #If article exists
         else:
@@ -100,32 +101,33 @@ async def article_search(message: types.Message, state: FSMContext):
 
 @router.message(F.text, RoleCheck("spectator"), ArticleSearch.article)
 async def article_process(message: types.Message, state: FSMContext):
-    sql = f"SELECT articleNumber FROM devices WHERE articleNumber ILIKE '%{message.text}'"
-    results = await custom_sql(sql, fetch=True)
-    if len(results) == 0:
-        #this is just bad, I need to refactor this asap
-        await message.answer(f"Артикулов с подстрокой {message.text} не найдено.", reply_markup=get_menu())
-        await state.clear()
-    else:
-        answer_text = f"Артикулы с подстрокой {message.text}:\n"
-        await state.update_data(articles=results)
-        for index, item in enumerate(results):
-            answer_text+=f"{index+1}. {item}\n"
-        answer_text+=f"\nВведите номер интересующего вас артикула:"
+    status, answer_text = multiple_articles(message.text)
+    if status:
         await message.answer(answer_text, reply_markup=reply_row_menu(["Отмена"]))
         await state.set_state(ArticleSearch.confirmation)
+    else:
+        await message.answer(answer_text, reply_markup=get_menu())
+        await state.clear()
 
 @router.message(F.text, RoleCheck("spectator"), ArticleSearch.confirmation)
 async def confirmation_process(message: types.Message, state: FSMContext):
     data = await state.get_data()
     results = data['articles']
-    try:
-        index = int(message.text)
-        await message.answer(f"Код: {results[index-1]}", reply_markup=get_menu())
-    except Exception as e:
-        await message.answer(f"Ошибка! Что-то явно пошло не так, перепроверьте вводимые данные.", reply_markup=get_menu())
-        await message.answer(f"Found an exception at confirmation_process: {e}")
-    state.clear()
+    articleNumber = results[int(message.text)-1]
+    if not(await article_guard(articleNumber)):
+        #If article doesn't exist
+        #If user is worker, then allow them to make records here
+        if message.from_user.id in await get_users_by_role("worker"):
+            buttons = [types.InlineKeyboardButton(text="Создать новую запись", callback_data=f"create.{data}")]
+            await message.answer(f"Устройство с артикулом: {articleNumber} не было найдено.", reply_markup=inline_row_menu(buttons))
+        else:
+            await message.answer(f"Устройство с артикулом: {articleNumber} не было найдено.", reply_markup=reply_row_menu(["Отмена"]))
+        
+    #If article exists
+    else:
+        device_info = await get_device_info(articleNumber)
+        await message.answer(device_info, reply_markup=get_menu(), parse_mode="HTML")
+    await state.clear()
 
 """
 todo
