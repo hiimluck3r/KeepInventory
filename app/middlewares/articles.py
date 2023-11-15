@@ -40,3 +40,17 @@ async def get_device_info(articleNumber):
 
     return device_info
 
+async def multiple_articles(articleNumberIncomplete):
+    sql = f"SELECT articleNumber FROM devices WHERE articleNumber ILIKE '%{articleNumberIncomplete}'"
+    articles = await custom_sql(sql, fetch=True)
+    
+    if articles:
+        answer_text = f"Артикулы с подстрокой {message.text}:\n"
+        for i in range(len(articles)):
+            index = articles[i]['id']
+            item = articles[i]['articleNumber']
+            answer_text+=f"{index+1}. {item}\n"
+        answer_text+=f"\nВведите номер интересующего вас артикула:"
+        return True, answer_text
+    else:
+        return False, f"Артикулов с подстрокой {message.text} не найдено."
