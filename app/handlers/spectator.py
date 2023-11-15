@@ -19,18 +19,6 @@ from app.filters.role_filter import RoleCheck
 
 router = Router()
 
-
-"""
-Cancel FSMContext event
-"""
-@router.message(Command(commands=["cancel"]))
-@router.message(F.text.lower() == "отмена")
-async def cmd_cancel(message: types.Message, state: FSMContext):
-    await state.clear()
-    await message.answer(
-        text="Действие отменено.",
-        reply_markup=get_menu()
-    )
 """
 /users
 
@@ -101,7 +89,7 @@ async def article_search(message: types.Message, state: FSMContext):
 
 @router.message(F.text, RoleCheck("spectator"), ArticleSearch.article)
 async def article_process(message: types.Message, state: FSMContext):
-    status, answer_text = multiple_articles(message.text)
+    status, answer_text = await multiple_articles(message.text)
     if status:
         await message.answer(answer_text, reply_markup=reply_row_menu(["Отмена"]))
         await state.set_state(ArticleSearch.confirmation)

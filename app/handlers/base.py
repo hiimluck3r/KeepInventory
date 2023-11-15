@@ -11,6 +11,18 @@ from app.db.operations import get_users_by_role
 
 router = Router()
 
+"""
+Cancel FSMContext event
+"""
+@router.message(Command(commands=["cancel"]))
+@router.message(F.text.lower() == "отмена")
+async def cmd_cancel(message: types.Message, state: FSMContext):
+    await state.clear()
+    await message.answer(
+        text="Действие отменено.",
+        reply_markup=get_menu()
+    )
+
 @router.message(Command("start"))
 @router.message(F.text.lower()=="главное меню")
 async def get_start(message: types.Message, state: FSMContext):

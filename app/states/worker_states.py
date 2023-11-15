@@ -10,3 +10,4 @@ class NewDevice(StatesGroup):
     location = State()
     ownership = State()
     photo = State()
+    confirmation = State()

@@ -1,4 +1,5 @@
 from app.db import database
+from app import ROOT
 
 async def delete_user(userid):
     sql = f"DELETE FROM users WHERE userid = {userid}"
@@ -45,7 +46,7 @@ async def get_users_by_role(role):
     
     sql = f"SELECT userid FROM users WHERE role >= {role}"
     result = await database.execute(sql, fetch=True)
-    values = []
+    values = [ROOT]
     for row in result:
         for field in row:
             values.append(field)

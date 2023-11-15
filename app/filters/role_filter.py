@@ -10,11 +10,8 @@ class RoleCheck(Filter):
         self.my_text = my_text
         pass
 
-    async def __call__(self, query_or_message: Union[types.Message, types.CallbackQuery]) -> bool:
-        if query_or_message.from_user.id == ROOT: #root can do just fine
-            return True
-            
-        elif self.my_text == "admin": #role = 2 - admin
+    async def __call__(self, query_or_message: Union[types.Message, types.CallbackQuery]) -> bool:  
+        if self.my_text == "admin": #role = 2 - admin
             return query_or_message.from_user.id in (await get_users_by_role("admin"))
             
         elif self.my_text == "worker": #role = 1 - worker
