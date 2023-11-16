@@ -72,13 +72,22 @@ async def barcode_processing(message: types.Message, state: FSMContext):
         
         #If article exists
         else:
-            device_info = await get_device_info(data)
+            device_info, photo = await get_device_info(data)
+            
             if message.from_user.id in await get_users_by_role("worker"):
                 await message.answer(device_info, reply_markup=get_redact_menu(data), parse_mode="HTML")
-                await message.answer("Главное меню", reply_markup=get_menu()) # изменить на фотографию
+                try:
+                    await message.answer_photo(photo, caption=f"Фотография устройства {data}", reply_markup=get_menu())
+                except Exception as e:
+                    print(f'Exception found while trying to send photo of device: {photo}', file = sys.stderr)
+                    await message.answer("Главное меню", reply_markup=get_menu())
             else:
-                await message.answer(device_info, reply_markup=get_menu(), parse_mode="HTML")
-                await message.answer("Главное меню", reply_markup=get_menu()) # изменить на фотографию, убрать один get_menu()
+                await message.answer(device_info, parse_mode="HTML")
+                try:
+                    await message.answer_photo(photo, caption=f"Фотография устройства {data}", reply_markup=get_menu())
+                except Exception as e:
+                    print(f'Exception found while trying to send photo of device: {photo}', file = sys.stderr)
+                    await message.answer("Главное меню", reply_markup=get_menu())
                 
             await state.clear()
     else:
@@ -113,18 +122,27 @@ async def confirmation_process(message: types.Message, state: FSMContext):
         #If article doesn't exist
         #If user is worker, then allow them to make records here
         if message.from_user.id in await get_users_by_role("worker"):
-            buttons = [types.InlineKeyboardButton(text="Создать новую запись", callback_data=f"create.{data}")]
+            buttons = [types.InlineKeyboardButton(text="Создать новую запись", callback_data=f"create.{articleNumber}")]
             await message.answer(f"Устройство с артикулом: {articleNumber} не было найдено.", reply_markup=inline_row_menu(buttons))
         else:
             await message.answer(f"Устройство с артикулом: {articleNumber} не было найдено.", reply_markup=reply_row_menu(["Отмена"]))
         
     #If article exists
     else:
-        device_info = await get_device_info(articleNumber)
+        device_info, photo = await get_device_info(articleNumber)
         if message.from_user.id in await get_users_by_role("worker"):
-                await message.answer(device_info, reply_markup=get_redact_menu(data), parse_mode="HTML")
-                await message.answer("Главное меню", reply_markup=get_menu()) # изменить на фотографию
+            await message.answer(device_info, reply_markup=get_redact_menu(articleNumber), parse_mode="HTML")
+            try:
+                await message.answer_photo(photo, caption=f"Фотография устройства {articleNumber}", reply_markup=get_menu())
+            except Exception as e:
+                print(f'Exception found while trying to send photo of device: {photo}', file = sys.stderr)
+                await message.answer("Главное меню", reply_markup=get_menu())
         else:
-            await message.answer(device_info, reply_markup=get_menu(), parse_mode="HTML")
-            await message.answer("Главное меню", reply_markup=get_menu()) # изменить на фотографию, убрать один get_menu()
+            await message.answer(device_info, parse_mode="HTML")
+            try:
+                await message.answer_photo(photo, caption=f"Фотография устройства {articleNumber}", reply_markup=get_menu())
+            except Exception as e:
+                print(f'Exception found while trying to send photo of device: {photo}', file = sys.stderr)
+                await message.answer("Главное меню", reply_markup=get_menu())
+
     await state.clear()

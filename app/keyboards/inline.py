@@ -42,7 +42,7 @@ def inline_row_menu(buttons):
 def get_redact_menu(articleNumber):
     builder = InlineKeyboardBuilder()
     buttons = [
-        {'name': 'Артикул', 'action': 'change_article', 'articleNumber': articleNumber},
+        {'name': 'Артикул', 'action': 'change_articlenumber', 'articleNumber': articleNumber},
         {'name': 'Категория', 'action': 'change_category', 'articleNumber': articleNumber},
         {'name': 'Подкатегория', 'action': 'change_subcategory', 'articleNumber': articleNumber},
         {'name': 'Название', 'action': 'change_name', 'articleNumber': articleNumber},

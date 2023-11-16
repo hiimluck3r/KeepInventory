@@ -3,13 +3,14 @@ import sys
 from aiogram import types, Router, F
 from app.loader import dp, bot
 from app import greet_stranger_text, greet_user_text
-from app.keyboards.reply import reply_column_menu, reply_row_menu
-from app.keyboards.inline import inline_column_menu, inline_row_menu
+from app.keyboards.reply import *
+from app.keyboards.inline import *
 from aiogram.filters.command import Command
 from aiogram.fsm.context import FSMContext
 from app.filters.role_filter import RoleCheck
 from app.states.worker_states import *
 from app.db.operations import *
+from app.utils.callback_factories import RedactDevice
 
 router = Router()
 
@@ -83,7 +84,11 @@ async def create_device_ownership_callback(message: types.Message, state: FSMCon
 
 @router.message(NewDevice.photo, RoleCheck("worker"))
 async def create_device_photo_callback(message: types.Message, state: FSMContext):
-    await state.update_data(photo=message.text)
+    try:
+        await state.update_data(photo=message.photo[-1].file_id)
+    except Exception as e:
+        print('Exception at uploading photo for a new device. Using blank instead.', file = sys.stderr)
+        await state.update_data(photo='-')
     await state.set_state(NewDevice.confirmation)
     data = await state.get_data()
     answer_text = f"Вы собираетесь создать новое устройство:\n"
@@ -119,8 +124,81 @@ async def create_device_confirmation_callback(message: types.Message, state: FSM
         answer_text = f"Запись внесена."
     except Exception as e:
         answer_text = f"Возникла ошибка при создании записи: {e}"
-    await message.answer(answer_text, reply_markup=reply_row_menu(["Главное меню"]))
+    await message.answer(answer_text, reply_markup=get_menu())
     await state.clear()
+
+"""
+Devices Manipulation
+"""
+
+@router.callback_query(RedactDevice.filter(F.action.startswith("change_")), RoleCheck("worker"))
+async def change_device_callback(callback: types.CallbackQuery, state: FSMContext, callback_data: RedactDevice):
+    await state.set_state(RedactDeviceState.change)
+    action = callback_data.action.split('_')[1]
+    
+    answers = {
+        'articlenumber': 'Введите новый артикул устройства:',
+        'category': 'Введите новую категорию устройства:',
+        'subcategory': 'Введите новую подкатегорию устройства:',
+        'name': 'Введите новое название устройства:',
+        'quantity': 'Введите количество устройств:',
+        'productionyear': 'Введите год производства устройства:',
+        'accountingyear': 'Введите год постановки устройства на учет:',
+        'location': 'Введите фактическое местонахождение устройства:',
+        'ownership': 'Введите фактического владельца устройства:',
+        'photo': 'Отправьте фотографию устройства:'
+    }
+    try:
+        await callback.message.answer(answers[action], reply_markup=reply_row_menu(["Отмена"]))
+        await state.update_data(articleNumber=callback_data.articleNumber, action=action)
+    except Exception as e:
+        await callback.message.answer(f"Возникла непредвиденная ошибка. Обратитесь к администратору.", reply_markup=reply_row_menu(["Главное меню"]))
+    await callback.answer()
+
+@router.message(RedactDeviceState.change, RoleCheck("worker"))
+async def change_device_process(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    action = data['action']
+    articleNumber = data['articleNumber']
+    
+    is_correct = True #incorrect info will be flagged as false
+    sql = None
+
+    if action == 'photo':
+        if message.photo is not None:
+            photo_id = message.photo[-1].file_id
+        else:
+            photo_id = '-'
+        
+        sql = f"UPDATE devices SET {action} = '{photo_id}' WHERE articleNumber = '{data['articleNumber']}'"
+        pass
+    elif action != 'photo' and message.text is not None:
+        if action in ['quantity', 'productionyear', 'accountingyear']:
+            sql = f"UPDATE devices SET {action} = {message.text} WHERE articleNumber = '{data['articleNumber']}'"
+        else: #article, category, subcategory, etc.
+            sql = f"UPDATE devices SET {action} = '{message.text}' WHERE articleNumber = '{data['articleNumber']}'"
+    else:
+        await message.answer("Ошибка: некорректная информация.", reply_markup=reply_row_menu(['Главное меню']))
+        is_correct = False
+    
+    if is_correct:
+        await custom_sql(sql, execute=True)
+        await state.clear()
+        await message.answer(f"Изменения внесены.", reply_markup=get_menu())
+
+@router.callback_query(RedactDevice.filter(F.action.startswith("delete")), RoleCheck("worker"))
+async def delete_device_process(callback: types.CallbackQuery, callback_data = RedactDevice):
+    articleNumber = callback_data.articleNumber
+    sql = f"DELETE FROM devices WHERE articleNumber = '{articleNumber}'"
+    await custom_sql(sql, execute=True)
+    await callback.message.answer("Устройство удалено.", reply_markup=get_menu())
+    await callback.answer()
+    
+
+
+"""
+Problematic Devices Manipulation
+"""
 
 """
 Create new note record
@@ -128,12 +206,4 @@ Create new note record
 
 """
 Create new software record
-"""
-
-"""
-Devices Manipulation
-"""
-
-"""
-Problematic Devices Manipulation
 """

@@ -1,3 +1,8 @@
+CREATE TABLE users(
+    id INTEGER PRIMARY KEY generated always as IDENTITY,
+    userid BIGINT UNIQUE,
+    role SMALLINT);
+
 CREATE TABLE devices(
     id INTEGER PRIMARY KEY generated always as IDENTITY,
     articleNumber VARCHAR UNIQUE,
@@ -15,15 +20,11 @@ CREATE TABLE devices(
 --So there won't be any naming duplicates
 --But it's harder to modify specific item, so I'll leave it be in terms of flexibility
 
-CREATE TABLE users(
-    id INTEGER PRIMARY KEY generated always as IDENTITY,
-    userid BIGINT UNIQUE,
-    role SMALLINT);
-
 CREATE TABLE problematicDevices(
     id INTEGER PRIMARY KEY generated always as IDENTITY,
     status BOOLEAN,
-    articleNumber VARCHAR UNIQUE REFERENCES devices(articleNumber),
+    articleNumber VARCHAR UNIQUE REFERENCES devices(articleNumber)
+    ON DELETE CASCADE ON UPDATE CASCADE,
     problemDescription VARCHAR,
     solutionDescription VARCHAR,
     photo VARCHAR,

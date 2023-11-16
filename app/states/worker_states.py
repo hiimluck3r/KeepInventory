@@ -11,3 +11,6 @@ class NewDevice(StatesGroup):
     ownership = State()
     photo = State()
     confirmation = State()
+
+class RedactDeviceState(StatesGroup):
+    change = State()

@@ -36,11 +36,10 @@ async def get_device_info(articleNumber):
     device_info+=f"\nМестонахождение: {result['location']}"
     device_info+=f"\nВладение: {result['ownership']}"
     
-    #photoURL should be here but not yet
     if (await problematic_device_guard(articleNumber)):
         device_info+=f'\n\n<b>Является "проблемным" устройством.</b>'
 
-    return device_info
+    return device_info, result['photo']
 
 async def multiple_articles(articleNumberIncomplete):
     sql = f"SELECT articleNumber FROM devices WHERE articleNumber ILIKE '%{articleNumberIncomplete}'"
