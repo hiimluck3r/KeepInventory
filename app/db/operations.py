@@ -26,7 +26,7 @@ async def custom_sql(sql, fetch: bool = False, fetchval: bool = False, fetchrow:
         values = await database.execute(sql, fetchval=True)
     elif fetchrow:
         result = await database.execute(sql, fetchrow=True)
-        values = [element for element in result]
+        values = dict(result)
     elif execute:
         values = await database.execute(sql, execute=True)
     

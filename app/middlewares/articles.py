@@ -26,13 +26,13 @@ async def get_device_info(articleNumber):
     device_info = f"Информация об устройстве: {articleNumber}\n"
     
     device_info+=f"\nID устройства: {result['id']}"
-    device_info+=f"\nАртикул: {result['articleNumber']}"
+    device_info+=f"\nАртикул: {result['articlenumber']}"
     device_info+=f"\nКатегория: {result['category']}"
     device_info+=f"\nПодкатегория: {result['subcategory']}"
     device_info+=f"\nНазвание: {result['name']}"
     device_info+=f"\nКоличество (шт.): {result['quantity']}"
-    device_info+=f"\nГод производства: {result['productionYear']}"
-    device_info+=f"\nГод постановки на учёт: {result['accoutingYear']}"
+    device_info+=f"\nГод производства: {result['productionyear']}"
+    device_info+=f"\nГод постановки на учёт: {result['accountingyear']}"
     device_info+=f"\nМестонахождение: {result['location']}"
     device_info+=f"\nВладение: {result['ownership']}"
     
@@ -45,14 +45,14 @@ async def get_device_info(articleNumber):
 async def multiple_articles(articleNumberIncomplete):
     sql = f"SELECT articleNumber FROM devices WHERE articleNumber ILIKE '%{articleNumberIncomplete}'"
     articles = await custom_sql(sql, fetch=True)
-    
     if articles:
+        articles_clear = []
         answer_text = f"Артикулы с подстрокой {articleNumberIncomplete}:\n"
         for i in range(len(articles)):
-            index = articles[i]['id']
-            item = articles[i]['articleNumber']
-            answer_text+=f"{index+1}. {item}\n"
+            item = articles[i]['articlenumber']
+            articles_clear.append(item)
+            answer_text+=f"{i+1}. {item}\n"
         answer_text+=f"\nВведите номер интересующего вас артикула:"
-        return True, answer_text
+        return True, answer_text, articles_clear
     else:
-        return False, f"Артикулов с подстрокой {articleNumberIncomplete} не найдено."
+        return False, f"Артикулов с подстрокой {articleNumberIncomplete} не найдено.", []

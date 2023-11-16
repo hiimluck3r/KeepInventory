@@ -14,9 +14,21 @@ from app.filters.role_filter import RoleCheck
 
 router = Router()
 
+"""
+Admin Dashboard
+"""
+
 @router.message(Command("admin"), RoleCheck("admin")) #rewrite filters to access roles each time
 async def get_admin_dashboard(message: types.Message):
     await message.answer("Админ-меню", reply_markup=get_dashboard_menu())
+
+"""
+Backup
+"""
+
+"""
+User Manipulation
+"""
 
 @router.message(Command("make"), RoleCheck("admin"))
 async def make_role(message: types.Message, command: CommandObject): # /make userid.role

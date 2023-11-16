@@ -73,7 +73,13 @@ async def barcode_processing(message: types.Message, state: FSMContext):
         #If article exists
         else:
             device_info = await get_device_info(data)
-            await message.answer(device_info, reply_markup=get_menu(), parse_mode="HTML")
+            if message.from_user.id in await get_users_by_role("worker"):
+                await message.answer(device_info, reply_markup=get_redact_menu(data), parse_mode="HTML")
+                await message.answer("Главное меню", reply_markup=get_menu()) # изменить на фотографию
+            else:
+                await message.answer(device_info, reply_markup=get_menu(), parse_mode="HTML")
+                await message.answer("Главное меню", reply_markup=get_menu()) # изменить на фотографию, убрать один get_menu()
+                
             await state.clear()
     else:
         await message.answer(f"Обнаружена ошибка: {data}. Попробуйте ещё раз.", reply_markup=reply_row_menu(["Отмена"]))
@@ -89,7 +95,8 @@ async def article_search(message: types.Message, state: FSMContext):
 
 @router.message(F.text, RoleCheck("spectator"), ArticleSearch.article)
 async def article_process(message: types.Message, state: FSMContext):
-    status, answer_text = await multiple_articles(message.text)
+    status, answer_text, articles = await multiple_articles(message.text)
+    await state.update_data(articles=articles)
     if status:
         await message.answer(answer_text, reply_markup=reply_row_menu(["Отмена"]))
         await state.set_state(ArticleSearch.confirmation)
@@ -114,9 +121,10 @@ async def confirmation_process(message: types.Message, state: FSMContext):
     #If article exists
     else:
         device_info = await get_device_info(articleNumber)
-        await message.answer(device_info, reply_markup=get_menu(), parse_mode="HTML")
+        if message.from_user.id in await get_users_by_role("worker"):
+                await message.answer(device_info, reply_markup=get_redact_menu(data), parse_mode="HTML")
+                await message.answer("Главное меню", reply_markup=get_menu()) # изменить на фотографию
+        else:
+            await message.answer(device_info, reply_markup=get_menu(), parse_mode="HTML")
+            await message.answer("Главное меню", reply_markup=get_menu()) # изменить на фотографию, убрать один get_menu()
     await state.clear()
-
-"""
-todo
-"""
