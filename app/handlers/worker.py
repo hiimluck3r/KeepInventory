@@ -2,7 +2,6 @@ import asyncio
 import sys
 from aiogram import types, Router, F
 from app.loader import dp, bot
-from app import greet_stranger_text, greet_user_text
 from app.keyboards.reply import *
 from app.keyboards.inline import *
 from aiogram.filters.command import Command
@@ -10,6 +9,7 @@ from aiogram.fsm.context import FSMContext
 from app.filters.role_filter import RoleCheck
 from app.states.worker_states import *
 from app.db.operations import *
+from app.middlewares.articles import *
 from app.utils.callback_factories import RedactDevice
 
 router = Router()
@@ -17,6 +17,20 @@ router = Router()
 """
 Create new device
 """
+@router.message(F.text.lower() == "новое устройство", RoleCheck("worker"))
+async def new_device_setup(message: types.Message, state: FSMContext):
+    await message.answer(f"Введите номер артикула:", reply_markup=reply_row_menu(['Отмена']))
+    await state.set_state(NewDevice.article)
+
+@router.message(F.text, RoleCheck("worker"), NewDevice.article)
+async def new_device_article_process(message: types.Message, state: FSMContext):
+    article = message.text
+    if not(await article_guard(article)):
+        #If article doesn't exist
+        buttons = [types.InlineKeyboardButton(text="Создать новую запись", callback_data=f"create.{article}")]
+        await message.answer(f"Устройство с артикулом: {article} не было найдено.", reply_markup=inline_row_menu(buttons))
+    else:
+        await message.answer(f"Устройство с таким артикулом уже существует.", reply_markup=get_menu())
 
 @router.callback_query(F.data.startswith('create'), RoleCheck("worker"))
 async def create_device_callback(callback: types.CallbackQuery, state: FSMContext):

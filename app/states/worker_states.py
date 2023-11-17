@@ -1,6 +1,7 @@
 from aiogram.fsm.state import State, StatesGroup
 
 class NewDevice(StatesGroup):
+    article = State()
     category = State()
     subcategory = State()
     name = State()
