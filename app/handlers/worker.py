@@ -17,6 +17,7 @@ router = Router()
 """
 Create new device
 """
+
 @router.message(F.text.lower() == "новое устройство", RoleCheck("worker"))
 async def new_device_setup(message: types.Message, state: FSMContext):
     await message.answer(f"Введите номер артикула:", reply_markup=reply_row_menu(['Отмена']))
@@ -208,8 +209,6 @@ async def delete_device_process(callback: types.CallbackQuery, callback_data = R
     await callback.message.answer("Устройство удалено.", reply_markup=get_menu())
     await callback.answer()
     
-
-
 """
 Problematic Devices Manipulation
 """

@@ -5,10 +5,10 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 def get_dashboard_menu():
     builder = InlineKeyboardBuilder()
     buttons = [
-        types.InlineKeyboardButton(text="Изменить greet_user.txt", callback_data="changegreet_user"), #желательно заменить названия файлов на норм слова
-        types.InlineKeyboardButton(text="Изменить greet_stranger.txt", callback_data="changegreet_stranger"),
-        types.InlineKeyboardButton(text="Сделать бэкап", callback_data="backup_download"), #.csv? pg_dumpall?
-        types.InlineKeyboardButton(text="Загрузить бэкап", callback_data="backup_upload"),
+        types.InlineKeyboardButton(text="Изменить greet_user", callback_data="changegreet_user"),
+        types.InlineKeyboardButton(text="Изменить greet_stranger", callback_data="changegreet_stranger"),
+        types.InlineKeyboardButton(text="Сделать бэкап", callback_data="backup_download"),
+        #types.InlineKeyboardButton(text="Загрузить бэкап", callback_data="backup_upload"), #todo
         types.InlineKeyboardButton(text="Просмотреть логи", callback_data="logs")
     ]
     

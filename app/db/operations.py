@@ -51,3 +51,6 @@ async def get_users_by_role(role):
         for field in row:
             values.append(field)
     return values
+
+async def do_backup(tableName):
+    await database.execute(tableName, download=True)

@@ -26,6 +26,19 @@ async def get_admin_dashboard(message: types.Message):
 Backup
 """
 
+#Download backup
+@router.callback_query(RoleCheck("admin"), F.data == "backup_download")
+async def download_backup(callback: types.CallbackQuery):
+    tables = ['users', 'devices', 'problematicdevices', 'software', 'notes']
+    for table in tables:
+        await do_backup(table)
+        filepath = types.FSInputFile(f'app/backups/{table}.csv')
+        try:
+            await callback.message.answer_document(document=filepath, filename=f'{table}.csv', caption=f'Таблица {table}')
+        except Exception as e:
+            await callback.message.answer(f'Непредвиденная ошибка: {e}')
+        await callback.answer()
+
 """
 User Manipulation
 """
@@ -84,3 +97,7 @@ async def remove_admin(message: types.Message, command: CommandObject):
                 await message.answer(f"Exception found: {e}")
         else:
             await message.answer(f"Пользователь {await get_username(userid)} не администратор, а {role}.")
+
+"""
+Greet message manipulation
+"""
