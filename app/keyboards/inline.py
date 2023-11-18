@@ -52,11 +52,13 @@ def get_redact_menu(articleNumber):
         {'name': 'Местонахождение', 'action': 'change_location', 'articleNumber': articleNumber},
         {'name': 'Владение', 'action': 'change_ownership', 'articleNumber': articleNumber},
         {'name': 'Фотография', 'action': 'change_photo', 'articleNumber': articleNumber},
-        {'name': 'Удалить устройство', 'action': 'delete', 'articleNumber': articleNumber}
+        {'name': 'Удалить устройство', 'action': 'delete', 'articleNumber': articleNumber},
+        {'name': 'Проблемное устройство', 'action': 'make_problematic', 'articleNumber': articleNumber}
     ]
     for button in buttons:
         builder.button(
             text = button['name'], callback_data=RedactDevice(action=button['action'], articleNumber=button['articleNumber']).pack()
         )
     builder.adjust(2)
+    
     return builder.as_markup()

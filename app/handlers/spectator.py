@@ -30,11 +30,11 @@ template: *nickname* - *userid* - *role*
 async def users_list(message: types.Message, command: CommandObject):
     users = await custom_sql("SELECT * FROM users", fetch=True)
     result = f"Список пользователей:"
-    result += f"\n{await get_username(ROOT)} - {ROOT} - ROOT"
     for row in users:
         role = None
-
-        if row['role'] == 2:
+        if row['role'] == 3:
+            role = 'ROOT'
+        elif row['role'] == 2:
             role = "Admin"
         elif row['role'] == 1:
             role = "Worker"

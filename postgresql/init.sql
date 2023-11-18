@@ -28,8 +28,7 @@ CREATE TABLE problematicDevices(
     problemDescription VARCHAR,
     solutionDescription VARCHAR,
     photo VARCHAR,
-    document VARCHAR,
-    userid BIGINT REFERENCES users(userid));
+    userid BIGINT REFERENCES users(userid) ON DELETE SET NULL);
 
 CREATE TABLE notes(
     id INTEGER PRIMARY KEY generated always as IDENTITY,

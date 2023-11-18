@@ -213,6 +213,21 @@ async def delete_device_process(callback: types.CallbackQuery, callback_data = R
 Problematic Devices Manipulation
 """
 
+@router.callback_query(RedactDevice.filter(F.action == "make_problematic"), RoleCheck("worker"))
+async def delete_device_process(callback: types.CallbackQuery, callback_data = RedactDevice):
+    articleNumber = callback_data.articleNumber
+    sql = f"""INSERT INTO 
+    problematicDevices(status, articleNumber, problemDescription, solutionDescription, photo, userid) 
+    VALUES(false, '{articleNumber}', '!Измените этот текст на описание проблемы!', 'Нет решения', '-', {callback.message.chat.id}) 
+    ON CONFLICT (articleNumber) DO UPDATE SET 
+    userid = {callback.message.chat.id},
+    status = false"""
+
+    await custom_sql(sql, execute=True)
+    await callback.message.answer("Устройство обозначено как проблемное. Пожалуйста, не забудьте изменить описание проблемы.", reply_markup=get_menu()) # change get_menu to goto article button
+    await callback.message.answer("Главное меню", reply_markup=get_menu())
+    await callback.answer()
+
 """
 Create new note record
 """

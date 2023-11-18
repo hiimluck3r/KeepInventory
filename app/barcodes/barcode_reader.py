@@ -5,6 +5,8 @@ async def get_code(image):
     try:
         image = cv2.imread(image)
         barcodes = pyzbar.decode(image)
+        if len(barcodes) == 0:
+            return [False, "Не удалось найти штрих-коды. Попробуйте изменить ракурс таким образом, чтобы штрих-код было чётко видно"]
         for barcode in barcodes:
             btype = barcode.type
             if btype == 'QRCODE':

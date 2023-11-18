@@ -98,6 +98,10 @@ async def remove_admin(message: types.Message, command: CommandObject):
         else:
             await message.answer(f"Пользователь {await get_username(userid)} не администратор, а {role}.")
 
+@router.message(Command("initroot"), F.from_user.id==ROOT)
+async def remove_admin(message: types.Message, command: CommandObject):
+    await add_user(ROOT, 'root')
+
 """
 Greet message manipulation
 """

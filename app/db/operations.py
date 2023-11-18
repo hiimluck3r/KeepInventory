@@ -6,7 +6,9 @@ async def delete_user(userid):
     await database.execute(sql, execute=True)
         
 async def add_user(userid, role):
-    if role == "admin":
+    if role == "root":
+        role = 3
+    elif role == "admin":
         role = 2
     elif role == "worker":
         role = 1
@@ -36,7 +38,8 @@ async def custom_sql(sql, fetch: bool = False, fetchval: bool = False, fetchrow:
         return None
 
 async def get_users_by_role(role):
-    
+    if role == "root":
+        role = 3
     if role == "admin":
         role = 2
     elif role == "worker":
@@ -46,7 +49,7 @@ async def get_users_by_role(role):
     
     sql = f"SELECT userid FROM users WHERE role >= {role}"
     result = await database.execute(sql, fetch=True)
-    values = [ROOT]
+    values = []
     for row in result:
         for field in row:
             values.append(field)
