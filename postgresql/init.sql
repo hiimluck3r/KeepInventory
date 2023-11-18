@@ -27,17 +27,16 @@ CREATE TABLE problematicDevices(
     ON DELETE CASCADE ON UPDATE CASCADE,
     problemDescription VARCHAR,
     solutionDescription VARCHAR,
-    photo VARCHAR,
     userid BIGINT REFERENCES users(userid) ON DELETE SET NULL);
 
 CREATE TABLE notes(
     id INTEGER PRIMARY KEY generated always as IDENTITY,
-    userid BIGINT REFERENCES users(userid),
+    userid BIGINT REFERENCES users(userid) ON DELETE SET NULL,
     header VARCHAR,
     description VARCHAR);
 
 CREATE TABLE software(
     id INTEGER PRIMARY KEY generated always as IDENTITY,
-    userid BIGINT REFERENCES users(userid),
+    userid BIGINT REFERENCES users(userid) ON DELETE SET NULL,
     filename VARCHAR,
     description VARCHAR);

@@ -1,4 +1,5 @@
 from app.db.operations import *
+from app.keyboards import get_username
 import sys
 
 async def article_guard(articleNumber):
@@ -55,3 +56,32 @@ async def multiple_articles(articleNumberIncomplete):
         return True, answer_text, articles_clear
     else:
         return False, f"Артикулов с подстрокой {articleNumberIncomplete} не найдено.", []
+
+async def get_problematic_devices():
+    sql = f"SELECT articleNumber FROM problematicDevices"
+    articles = await custom_sql(sql, fetch=True)
+
+    return articles
+
+async def get_problematic_device_info(articleNumber):
+    device_info = ''
+    sql = f"""SELECT * FROM problematicDevices WHERE articleNumber = '{articleNumber}'
+    """
+    data = await custom_sql(sql, fetchrow=True)
+    status = data['status']
+    problemDescription = data['problemdescription']
+    solutionDescription = data['solutiondescription']
+    user = await get_username(data['userid'])
+
+    device_info+=f"Артикул: {articleNumber}\n"
+
+    if status:
+        device_info+="Статус: Исправлено\n"
+    else:
+        device_info+="Статус: В работе\n"
+    
+    device_info+=f"\nОписание проблемы: {problemDescription}\n"
+    device_info+=f"\nРешение проблемы: {solutionDescription}\n"
+    device_info+=f"Работает: {user}"
+
+    return device_info

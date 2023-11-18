@@ -214,19 +214,26 @@ Problematic Devices Manipulation
 """
 
 @router.callback_query(RedactDevice.filter(F.action == "make_problematic"), RoleCheck("worker"))
-async def delete_device_process(callback: types.CallbackQuery, callback_data = RedactDevice):
-    articleNumber = callback_data.articleNumber
+async def make_problematic_callback(callback: types.CallbackQuery, state: FSMContext, callback_data = RedactDevice):
+    await state.update_data(articleNumber = callback_data.articleNumber, userid = callback.message.chat.id)
+    await state.set_state(ProblematicDeviceCreation.description)
+    await callback.message.answer("Введите описание проблемы", reply_markup=reply_row_menu(["Отмена"]))
+    await callback.answer()
+
+@router.message(ProblematicDeviceCreation.description, RoleCheck("worker"), F.text)
+async def make_problematic_process(message: types.Message, state: FSMContext):
+    data = await state.get_data()
     sql = f"""INSERT INTO 
-    problematicDevices(status, articleNumber, problemDescription, solutionDescription, photo, userid) 
-    VALUES(false, '{articleNumber}', '!Измените этот текст на описание проблемы!', 'Нет решения', '-', {callback.message.chat.id}) 
+    problematicDevices(status, articleNumber, problemDescription, solutionDescription, userid) 
+    VALUES(false, '{data['articleNumber']}', '{message.text}', 'Нет решения', {data['userid']}) 
     ON CONFLICT (articleNumber) DO UPDATE SET 
-    userid = {callback.message.chat.id},
-    status = false"""
+    userid = {data['userid']},
+    status = false,
+    problemDescription = '{message.text}'"""
 
     await custom_sql(sql, execute=True)
-    await callback.message.answer("Устройство обозначено как проблемное. Пожалуйста, не забудьте изменить описание проблемы.", reply_markup=get_menu()) # change get_menu to goto article button
-    await callback.message.answer("Главное меню", reply_markup=get_menu())
-    await callback.answer()
+    await message.answer(f"Устройство {data['articleNumber']} обозначено как проблемное.", reply_markup=get_menu())
+    await state.clear()
 
 """
 Create new note record
