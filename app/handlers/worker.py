@@ -35,7 +35,7 @@ async def new_device_article_process(message: types.Message, state: FSMContext):
 
 @router.callback_query(F.data.startswith('create'), RoleCheck("worker"))
 async def create_device_callback(callback: types.CallbackQuery, state: FSMContext):
-    articleNumber = int(callback.data.split(".")[1])
+    articleNumber = callback.data.split(".")[1]
     await state.update_data(articleNumber=articleNumber)
     await state.set_state(NewDevice.category)
     await callback.message.answer(f"Укажите категорию устройства:", reply_markup=reply_row_menu(["Отмена"]))

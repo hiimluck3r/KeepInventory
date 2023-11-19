@@ -16,7 +16,7 @@ from app.barcodes.barcode_reader import get_code
 from app.states.spectator_states import BarcodeImage, ArticleSearch, ProblematicDevices
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from app.filters.role_filter import RoleCheck
+from app.filters.role_filter import RoleCheck, role_check_function
 from aiogram.exceptions import TelegramBadRequest
 
 router = Router()
@@ -167,7 +167,7 @@ async def problematic_devices_menu(message: types.Message, state: FSMContext):
     if articles != None:
         article = articles[0]['articlenumber']
         await state.set_state(ProblematicDevices.init)
-        keyboard = get_problematic_device_keyboard(article) if RoleCheck("worker") else []
+        keyboard = get_problematic_device_keyboard(article) if await role_check_function(message.from_user.id, "worker") else []
         await message.answer(await get_problematic_device_info(article), reply_markup=paginator(keyboard))
     else:
         await message.answer("Проблемных устройств на данный момент не имеется.", reply_markup=get_menu())
@@ -188,9 +188,9 @@ async def problematic_devices_pageswap(callback: types.CallbackQuery, callback_d
         
         with suppress(TelegramBadRequest):
             article = articles[page]['articlenumber']
-            keyboard = get_problematic_device_keyboard(article) if RoleCheck("worker") else []
-            await call.message.edit_text(
+            keyboard = get_problematic_device_keyboard(article) if await role_check_function(callback.message.chat.id, "worker") else []
+            await callback.message.edit_text(
                 await get_problematic_device_info(article),
                 reply_markup = paginator(keyboard, page)
             )
-    await call.answer()
+    await callback.answer()
