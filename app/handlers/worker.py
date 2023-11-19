@@ -10,6 +10,7 @@ from app.filters.role_filter import RoleCheck
 from app.states.worker_states import *
 from app.db.operations import *
 from app.middlewares.articles import *
+from app.middlewares.misc import *
 from app.utils.callback_factories import RedactDevice
 
 router = Router()
@@ -235,14 +236,14 @@ async def make_problematic_process(message: types.Message, state: FSMContext):
     await message.answer(f"Устройство {data['articleNumber']} обозначено как проблемное.", reply_markup=get_menu())
     await state.clear()
 
-@router.callback_query(RedactProblematicDevice.filter(F.action == "pchange_problem"), RoleCheck("worker"))
+@router.callback_query(RedactProblematicDevice.filter(F.action == "problematic_change_problem"), RoleCheck("worker"))
 async def redact_problem_callback(callback: types.CallbackQuery, state: FSMContext, callback_data = RedactProblematicDevice):
     await state.update_data(articleNumber = callback_data.articleNumber, action = callback_data.action)
     await state.set_state(RedactProblematicDeviceState.change)
     await callback.message.answer("Введите описание проблемы:", reply_markup=reply_row_menu(["Отмена"]))
     await callback.answer()
 
-@router.callback_query(RedactProblematicDevice.filter(F.action == "pchange_solution"), RoleCheck("worker"))
+@router.callback_query(RedactProblematicDevice.filter(F.action == "problematic_change_solution"), RoleCheck("worker"))
 async def redact_solution_callback(callback: types.CallbackQuery, state: FSMContext, callback_data = RedactProblematicDevice):
     await state.update_data(articleNumber = callback_data.articleNumber, action = callback_data.action)
     await state.set_state(RedactProblematicDeviceState.change)
@@ -262,14 +263,14 @@ async def redact_problem_process(message: types.Message, state: FSMContext):
     await message.answer("Изменения внесены.", reply_markup=get_menu())
     await state.clear()
 
-@router.callback_query(RedactProblematicDevice.filter(F.action == "pdelete"), RoleCheck("worker"))
+@router.callback_query(RedactProblematicDevice.filter(F.action == "problematic_delete"), RoleCheck("worker"))
 async def redact_problem_callback(callback: types.CallbackQuery, callback_data = RedactProblematicDevice):
     sql = f"DELETE FROM problematicDevices WHERE articleNumber = '{callback_data.articleNumber}'"
     await custom_sql(sql, execute=True)
     await callback.message.answer("Устройство удалено из списка проблемных.", reply_markup=get_menu())
     await callback.answer()
 
-@router.callback_query(RedactProblematicDevice.filter(F.action == "pcomplete"), RoleCheck("worker"))
+@router.callback_query(RedactProblematicDevice.filter(F.action == "problematic_complete"), RoleCheck("worker"))
 async def redact_problem_callback(callback: types.CallbackQuery, callback_data = RedactProblematicDevice):
     sql = f"UPDATE problematicDevices SET status = true WHERE articleNumber = '{callback_data.articleNumber}'"
     await custom_sql(sql, execute=True)
@@ -283,3 +284,40 @@ Create new note record
 """
 Create new software record
 """
+@router.message(F.text.lower() == "программное обеспечение", RoleCheck("worker"))
+async def software_menu(message: types.Message):
+    await message.answer(f"Здесь вы можете опубликовать свое ПО или найти уже опубликованное другими пользователями.", reply_markup=reply_row_menu(["Опубликовать ПО", "Доступное ПО", "Главное меню"]))
+
+@router.message(F.text.lower() == "доступное по", RoleCheck("worker"))
+async def software_uploaded_menu(message: types.Message, state: FSMContext):
+    software = await get_software()
+    if software != None:
+        software_id = software[0]['id']
+        await state.set_state(Software.init)
+        keyboard = get_software_keyboard(software_id)
+        await message.answer(await get_problematic_device_info(software_id), reply_markup=paginator(keyboard))
+    else:
+        await message.answer("На данный момент программное обеспечение отсутствует.", reply_markup=reply_row_menu(["Опубликовать ПО", "Главное меню"]))
+
+@dp.callback_query(Software.init, PaginationValues.filter(F.action.in_(["next", "prev"])), RoleCheck("spectator"))
+async def software_uploaded_pageswap(callback: types.CallbackQuery, callback_data: PaginationValues):
+    software = await get_software()
+    if software == None:
+        await message.answer("На данный момент программное обеспечение отсутствует.", reply_markup=reply_row_menu(["Опубликовать ПО", "Главное меню"]))
+    else:
+        current_page = int(callback_data.page)
+        page = None
+
+        if callback_data.action == "prev":
+            page = current_page-1 if current_page>0 else len(articles)-1 #previous page
+        else:
+            page = current_page+1 if current_page<(len(articles)-1) else 0 #next page
+        
+        with suppress(TelegramBadRequest):
+            software_id = software[page]['id']
+            keyboard = get_software_keyboard(software_id)
+            await callback.message.edit_text(
+                await get_problematic_device_info(software_id),
+                reply_markup=paginator(keyboard)
+            )
+    await callback.answer()

@@ -39,4 +39,5 @@ CREATE TABLE software(
     id INTEGER PRIMARY KEY generated always as IDENTITY,
     userid BIGINT REFERENCES users(userid) ON DELETE SET NULL,
     filename VARCHAR,
+    fileurl VARCHAR,
     description VARCHAR);

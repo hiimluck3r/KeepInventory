@@ -21,3 +21,6 @@ class ProblematicDeviceCreation(StatesGroup):
 
 class RedactProblematicDeviceState(StatesGroup):
     change = State()
+
+class Software(StatesGroup):
+    init = State()
