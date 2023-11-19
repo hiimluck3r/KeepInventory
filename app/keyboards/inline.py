@@ -71,7 +71,7 @@ def get_redact_menu(articleNumber):
         {'text': 'Артикул', 'action': 'change_articlenumber', 'articleNumber': articleNumber},
         {'text': 'Категория', 'action': 'change_category', 'articleNumber': articleNumber},
         {'text': 'Подкатегория', 'action': 'change_subcategory', 'articleNumber': articleNumber},
-        {'text': 'Название', 'action': 'change_text', 'articleNumber': articleNumber},
+        {'text': 'Название', 'action': 'change_name', 'articleNumber': articleNumber},
         {'text': 'Количество', 'action': 'change_quantity', 'articleNumber': articleNumber},
         {'text': 'Год производства', 'action': 'change_productionyear', 'articleNumber': articleNumber},
         {'text': 'Год начала учёта', 'action': 'change_accountingyear', 'articleNumber': articleNumber},
