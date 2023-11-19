@@ -18,3 +18,6 @@ class RedactDeviceState(StatesGroup):
 
 class ProblematicDeviceCreation(StatesGroup):
     description = State()
+
+class RedactProblematicDeviceState(StatesGroup):
+    change = State()

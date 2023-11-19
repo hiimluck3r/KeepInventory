@@ -20,10 +20,10 @@ def paginator(buttons: list = [], page: int = 0) -> InlineKeyboardBuilder:
 
 def get_problematic_device_keyboard(articleNumber):
     buttons = [
-        {'text': 'Описание проблемы', 'action': 'change_problem', 'articleNumber': articleNumber},
-        {'text': 'Описание решения', 'action': 'change_solution', 'articleNumber': articleNumber},
-        {'text': 'Удалить', 'action': 'delete', 'articleNumber': articleNumber},
-        {'text': 'Отметить исправленным', 'action': 'complete', 'articleNumber': articleNumber}
+        {'text': 'Описание проблемы', 'action': 'pchange_problem', 'articleNumber': articleNumber}, #p == problematic
+        {'text': 'Описание решения', 'action': 'pchange_solution', 'articleNumber': articleNumber},
+        {'text': 'Удалить', 'action': 'pdelete', 'articleNumber': articleNumber},
+        {'text': 'Отметить исправленным', 'action': 'pcomplete', 'articleNumber': articleNumber}
     ]
 
     return buttons

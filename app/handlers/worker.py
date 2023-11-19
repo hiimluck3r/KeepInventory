@@ -235,6 +235,47 @@ async def make_problematic_process(message: types.Message, state: FSMContext):
     await message.answer(f"Устройство {data['articleNumber']} обозначено как проблемное.", reply_markup=get_menu())
     await state.clear()
 
+@router.callback_query(RedactProblematicDevice.filter(F.action == "pchange_problem"), RoleCheck("worker"))
+async def redact_problem_callback(callback: types.CallbackQuery, state: FSMContext, callback_data = RedactProblematicDevice):
+    await state.update_data(articleNumber = callback_data.articleNumber, action = callback_data.action)
+    await state.set_state(RedactProblematicDeviceState.change)
+    await callback.message.answer("Введите описание проблемы:", reply_markup=reply_row_menu(["Отмена"]))
+    await callback.answer()
+
+@router.callback_query(RedactProblematicDevice.filter(F.action == "pchange_solution"), RoleCheck("worker"))
+async def redact_solution_callback(callback: types.CallbackQuery, state: FSMContext, callback_data = RedactProblematicDevice):
+    await state.update_data(articleNumber = callback_data.articleNumber, action = callback_data.action)
+    await state.set_state(RedactProblematicDeviceState.change)
+    await callback.message.answer("Введите описание решения:", reply_markup=reply_row_menu(["Отмена"]))
+    await callback.answer()
+
+@router.message(RedactProblematicDeviceState.change, RoleCheck("worker"))
+async def redact_problem_process(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    action = data['action'].split('_')[1] #change action
+    articleNumber = data['articleNumber']
+    if action == 'solution':
+        sql = f"UPDATE problematicDevices SET solutionDescription = '{message.text}' WHERE articleNumber = '{articleNumber}'"
+    else:
+        sql = f"UPDATE problematicDevices SET problemDescription = '{message.text}' WHERE articleNumber = '{articleNumber}'"
+    await custom_sql(sql, execute=True)
+    await message.answer("Изменения внесены.", reply_markup=get_menu())
+    await state.clear()
+
+@router.callback_query(RedactProblematicDevice.filter(F.action == "pdelete"), RoleCheck("worker"))
+async def redact_problem_callback(callback: types.CallbackQuery, callback_data = RedactProblematicDevice):
+    sql = f"DELETE FROM problematicDevices WHERE articleNumber = '{callback_data.articleNumber}'"
+    await custom_sql(sql, execute=True)
+    await callback.message.answer("Устройство удалено из списка проблемных.", reply_markup=get_menu())
+    await callback.answer()
+
+@router.callback_query(RedactProblematicDevice.filter(F.action == "pcomplete"), RoleCheck("worker"))
+async def redact_problem_callback(callback: types.CallbackQuery, callback_data = RedactProblematicDevice):
+    sql = f"UPDATE problematicDevices SET status = true WHERE articleNumber = '{callback_data.articleNumber}'"
+    await custom_sql(sql, execute=True)
+    await callback.message.answer("Устройство обозначено как исправленное.", reply_markup=get_menu())
+    await callback.answer()
+
 """
 Create new note record
 """
