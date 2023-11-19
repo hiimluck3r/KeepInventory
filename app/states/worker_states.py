@@ -24,3 +24,21 @@ class RedactProblematicDeviceState(StatesGroup):
 
 class Software(StatesGroup):
     init = State()
+
+class NewSoftware(StatesGroup):
+    filename = State()
+    fileurl = State()
+    description = State()
+
+class RedactSoftwareState(StatesGroup):
+    change = State()
+
+class Notes(StatesGroup):
+    init = State()
+
+class NewNote(StatesGroup):
+    header = State()
+    description = State()
+
+class RedactNoteState(StatesGroup):
+    change = State()

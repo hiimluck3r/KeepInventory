@@ -168,7 +168,7 @@ async def problematic_devices_menu(message: types.Message, state: FSMContext):
         article = articles[0]['articlenumber']
         await state.set_state(ProblematicDevices.init)
         keyboard = get_problematic_device_keyboard(article) if await role_check_function(message.from_user.id, "worker") else []
-        await message.answer(await get_problematic_device_info(article), reply_markup=paginator(keyboard))
+        await message.answer(await get_problematic_device_info(article), reply_markup=paginator(keyboard, "problematic", 0))
     else:
         await message.answer("Проблемных устройств на данный момент не имеется.", reply_markup=get_menu())
 
@@ -191,7 +191,7 @@ async def problematic_devices_pageswap(callback: types.CallbackQuery, callback_d
             keyboard = get_problematic_device_keyboard(article) if await role_check_function(callback.message.chat.id, "worker") else []
             await callback.message.edit_text(
                 await get_problematic_device_info(article),
-                reply_markup = paginator(keyboard, page)
+                reply_markup = paginator(keyboard, "problematic", page)
             )
     await callback.answer()
 

@@ -3,12 +3,26 @@ import sys
 from app.utils.callback_factories import *
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-def paginator(buttons: list = [], page: int = 0) -> InlineKeyboardBuilder:
+def paginator(buttons: list = [], mode: str = "problematic", page: int = 0) -> InlineKeyboardBuilder:
     builder = InlineKeyboardBuilder()
-    for button in buttons:
-        builder.button(
-            text = button['text'], callback_data=RedactProblematicDevice(action=button['action'], articleNumber=button['articleNumber']).pack()
-        )
+    match mode:
+        case "problematic":
+            for button in buttons:
+                builder.button(
+                    text = button['text'], callback_data=RedactProblematicDevice(action=button['action'], articleNumber=button['articleNumber']).pack()
+                )
+        case "software":
+            for button in buttons:
+                builder.button(
+                    text = button['text'], callback_data=RedactSoftware(action=button['action'], id=button['id']).pack()
+                )
+        case "notes":
+            for button in buttons:
+                builder.button(
+                    text = button['text'], callback_data=RedactNotes(action=button['action'], id=button['id']).pack()
+                )
+        case _:
+            pass
     
     builder.row(
         types.InlineKeyboardButton(text = "⬅️", callback_data=PaginationValues(action="prev", page=page).pack()),
@@ -18,7 +32,7 @@ def paginator(buttons: list = [], page: int = 0) -> InlineKeyboardBuilder:
     builder.adjust(2)
     return builder.as_markup()
 
-def get_software_keyboard(id):
+def get_software_keyboard(id) -> list:
     buttons = [
         {'text': 'Изменить название', 'action': 'software_change_name', 'id': id},
         {'text': 'Изменить описание', 'action': 'software_change_description', 'id': id},
@@ -28,7 +42,15 @@ def get_software_keyboard(id):
 
     return buttons
 
-def get_problematic_device_keyboard(articleNumber):
+def get_notes_keyboard(id) -> list:
+    buttons = [
+        {'text': 'Изменить описание', 'action': 'notes_change_description', 'id': id},
+        {'text': 'Удалить', 'action': 'notes_delete', 'id': id},
+    ]
+
+    return buttons
+
+def get_problematic_device_keyboard(articleNumber) -> list:
     buttons = [
         {'text': 'Описание проблемы', 'action': 'problematic_change_problem', 'articleNumber': articleNumber}, #p == problematic
         {'text': 'Описание решения', 'action': 'problematic_change_solution', 'articleNumber': articleNumber},
@@ -38,7 +60,7 @@ def get_problematic_device_keyboard(articleNumber):
 
     return buttons
 
-def get_dashboard_menu():
+def get_dashboard_menu() -> InlineKeyboardBuilder:
     builder = InlineKeyboardBuilder()
     buttons = [
         types.InlineKeyboardButton(text="Изменить greet_user", callback_data="changegreet_user"),
@@ -56,7 +78,7 @@ def get_dashboard_menu():
 
     return builder.as_markup()
 
-def inline_column_menu(buttons):
+def inline_column_menu(buttons) -> InlineKeyboardBuilder:
     builder = InlineKeyboardBuilder()
     
     for i in range(0, len(buttons)-1, 2):
@@ -67,7 +89,7 @@ def inline_column_menu(buttons):
 
     return builder.as_markup()
 
-def inline_row_menu(buttons):
+def inline_row_menu(buttons) -> InlineKeyboardBuilder:
     builder = InlineKeyboardBuilder()
     
     for button in buttons:
@@ -75,7 +97,7 @@ def inline_row_menu(buttons):
     builder.adjust(len(buttons), 0)
     return builder.as_markup()
 
-def get_redact_menu(articleNumber):
+def get_redact_menu(articleNumber) -> InlineKeyboardBuilder:
     builder = InlineKeyboardBuilder()
     buttons = [
         {'text': 'Артикул', 'action': 'change_articlenumber', 'articleNumber': articleNumber},

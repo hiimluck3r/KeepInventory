@@ -9,7 +9,7 @@ async def get_software():
 
 async def get_software_info(id):
     device_info = ''
-    sql = f"""SELECT * FROM software WHERE id = id
+    sql = f"""SELECT * FROM software WHERE id = {id}
     """
     data = await custom_sql(sql, fetchrow=True)
     filename = data['filename']
