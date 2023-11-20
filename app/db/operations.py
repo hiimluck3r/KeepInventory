@@ -32,10 +32,7 @@ async def custom_sql(sql, fetch: bool = False, fetchval: bool = False, fetchrow:
     elif execute:
         values = await database.execute(sql, execute=True)
     
-    if values:
-        return values
-    else:
-        return None
+    return values if values else None
 
 async def get_users_by_role(role):
     if role == "root":
@@ -51,9 +48,7 @@ async def get_users_by_role(role):
     result = await database.execute(sql, fetch=True)
     values = []
     for row in result:
-        for field in row:
-            values.append(field)
-    return values
+        values.extend(iter(row))
 
 async def do_backup(tableName):
     await database.execute(tableName, download=True)
