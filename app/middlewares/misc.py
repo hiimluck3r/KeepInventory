@@ -28,8 +28,7 @@ async def get_notes():
 
 async def get_notes_info(id):
     notes_info = ''
-    sql = f"""SELECT * FROM notes WHERE id = {id}
-    """
+    sql = f"SELECT * FROM notes WHERE id = {id}"
     data = await custom_sql(sql, fetchrow=True)
     header = data['header']
     description = data['header']

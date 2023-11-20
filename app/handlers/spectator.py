@@ -237,7 +237,3 @@ async def problematic_devices_pageswap(callback: types.CallbackQuery, callback_d
                 reply_markup = paginator(keyboard, "problematic", page)
             )
     await callback.answer()
-
-"""
-Notes
-"""

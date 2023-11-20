@@ -61,8 +61,8 @@ async def make_role(message: types.Message, command: CommandObject): # /make use
 async def remove_role(message: types.Message, command: CommandObject): # /rm userid
     if command.args:
         userid = int(command.args)
-        role = await custom_sql(f"SELECT role FROM users WHERE userid = {userid}", fetchval=True)
-        if role!="admin":
+        role = await custom_sql(f"SELECT role FROM users WHERE userid = $1", userid, fetchval=True)
+        if role!=2:
             try:
                 result = await delete_user(userid)
                 await message.answer(f"Пользователь {await get_username(userid)} успешно удалён.")
@@ -70,10 +70,10 @@ async def remove_role(message: types.Message, command: CommandObject): # /rm use
             except Exception as e:
                 await message.answer(f"Exception found: {e}")
         else:
-            await message.answer(f"Нет прав для удаления пользователя {get_username(userid)}, поскольку этот пользователь {role}.")
+            await message.answer(f"Нет прав для удаления пользователя {get_username(userid)}, поскольку этот пользователь администратор.")
 
 @router.message(Command("makeadmin"), F.from_user.id==ROOT)
-async def make_admin(message: types.Message, command: CommandObject): # /make userid.role
+async def make_admin(message: types.Message, command: CommandObject): # /makeadmin userid
     if command.args:
         userid = int(command.args)
         try:
@@ -87,8 +87,8 @@ async def make_admin(message: types.Message, command: CommandObject): # /make us
 async def remove_admin(message: types.Message, command: CommandObject):
     if command.args:
         userid = int(command.args)
-        role = await custom_sql(f"SELECT role FROM users WHERE userid = {userid}", fetchval=True)
-        if role=="admin":
+        role = await custom_sql(f"SELECT role FROM users WHERE userid = $1", userid, fetchval=True)
+        if role==2:
             try:
                 result = await delete_user(userid)
                 await message.answer(f"Пользователь {await get_username(userid)} удалён из списка администраторов.")
@@ -96,7 +96,7 @@ async def remove_admin(message: types.Message, command: CommandObject):
             except Exception as e:
                 await message.answer(f"Exception found: {e}")
         else:
-            await message.answer(f"Пользователь {await get_username(userid)} не администратор, а {role}.")
+            await message.answer(f"Пользователь {await get_username(userid)} не администратор.")
 
 @router.message(Command("initroot"), F.from_user.id==ROOT)
 async def remove_admin(message: types.Message, command: CommandObject):

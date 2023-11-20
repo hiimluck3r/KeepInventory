@@ -35,8 +35,8 @@ async def get_device_info(articleNumber):
     return device_info, result['photo']
 
 async def multiple_articles(articleNumberIncomplete):
-    sql = f"SELECT articleNumber FROM devices WHERE articleNumber ILIKE '%{articleNumberIncomplete}'"
-    articles = await custom_sql(sql, fetch=True)
+    sql = f"SELECT articleNumber FROM devices WHERE articleNumber ILIKE ('%' || $1)"
+    articles = await custom_sql(sql, articleNumberIncomplete, fetch=True)
     if not articles:
         return False, f"Артикулов с подстрокой {articleNumberIncomplete} не найдено.", []
     else:

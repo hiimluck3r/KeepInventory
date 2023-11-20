@@ -168,13 +168,16 @@ async def create_device_confirmation_callback(message: types.Message, state: FSM
     name, quantity, productionYear, 
     accountingYear, location, 
     ownership, photo)
-    VALUES ('{data['articleNumber']}', '{data['category']}', '{data['subcategory']}', 
-    '{data['name']}', {data['quantity']}, {data['productionYear']}, 
-    {data['accountingYear']}, '{data['location']}', '{data['ownership']}', 
-    '{data['photo']}')""" #that's a mess, ngl, but you should deal with it
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)""" #that's a mess, ngl, but you should deal with it
 
     try:
-        await custom_sql(sql, execute=True)
+        await custom_sql(
+            sql, data['articleNumber'], data['category'],
+            data['subcategory'], data['name'],
+            int(data['quantity']), int(data['productionYear']),
+            int(data['accountingYear']), data['location'],
+            data['ownership'], data['photo'], execute=True
+        )
         answer_text = "Запись внесена."
     except Exception as e:
         answer_text = f"Возникла ошибка при создании записи: {e}"
@@ -224,12 +227,10 @@ async def change_device_process(message: types.Message, state: FSMContext):
     if action == 'photo':
         photo_id = message.photo[-1].file_id if message.photo is not None else '-'
         sql = f"UPDATE devices SET {action} = '{photo_id}' WHERE articleNumber = '{data['articleNumber']}'"
-        pass
+        await custom_sql(sql, execute=True) 
     elif message.text is not None:
-        if action in ['quantity', 'productionyear', 'accountingyear']:
-            sql = f"UPDATE devices SET {action} = {message.text} WHERE articleNumber = '{data['articleNumber']}'"
-        else: #article, category, subcategory, etc.
-            sql = f"UPDATE devices SET {action} = '{message.text}' WHERE articleNumber = '{data['articleNumber']}'"
+        sql = f"UPDATE devices SET {action} = $1 WHERE articleNumber = '{data['articleNumber']}'"
+        await custom_sql(sql, message.text, execute=True)
     else:
         await message.answer(
             "Ошибка: некорректная информация.",
@@ -238,7 +239,6 @@ async def change_device_process(message: types.Message, state: FSMContext):
         is_correct = False
     
     if is_correct:
-        await custom_sql(sql, execute=True)
         await state.clear()
         await message.answer("Изменения внесены.", reply_markup=get_menu())
 
@@ -264,15 +264,15 @@ async def make_problematic_callback(callback: types.CallbackQuery, state: FSMCon
 @router.message(ProblematicDeviceCreation.description, RoleCheck("worker"), F.text)
 async def make_problematic_process(message: types.Message, state: FSMContext):
     data = await state.get_data()
-    sql = f"""INSERT INTO 
+    sql = """INSERT INTO 
     problematicDevices(status, articleNumber, problemDescription, solutionDescription, userid) 
-    VALUES(false, '{data['articleNumber']}', '{message.text}', 'Нет решения', {data['userid']}) 
+    VALUES(false, $1, $2, 'Нет решения', $3) 
     ON CONFLICT (articleNumber) DO UPDATE SET 
-    userid = {data['userid']},
+    userid = $3,
     status = false,
-    problemDescription = '{message.text}'"""
+    problemDescription = $2"""
 
-    await custom_sql(sql, execute=True)
+    await custom_sql(sql, data['articleNumber'], message.text, int(data['userid']), execute=True)
     await message.answer(f"Устройство {data['articleNumber']} обозначено как проблемное.", reply_markup=get_menu())
     await state.clear()
 
@@ -296,10 +296,10 @@ async def redact_problem_process(message: types.Message, state: FSMContext):
     action = data['action'].split('_')[-1] #change action
     articleNumber = data['articleNumber']
     if action == 'solution':
-        sql = f"UPDATE problematicDevices SET solutionDescription = '{message.text}' WHERE articleNumber = '{articleNumber}'"
+        sql = f"UPDATE problematicDevices SET solutionDescription = $1 WHERE articleNumber = '{articleNumber}'"
     else:
-        sql = f"UPDATE problematicDevices SET problemDescription = '{message.text}' WHERE articleNumber = '{articleNumber}'"
-    await custom_sql(sql, execute=True)
+        sql = f"UPDATE problematicDevices SET problemDescription = $1 WHERE articleNumber = '{articleNumber}'"
+    await custom_sql(sql, message.text, execute=True)
     await message.answer("Изменения внесены.", reply_markup=get_menu())
     await state.clear()
 
@@ -349,9 +349,9 @@ async def new_note_description_process(message: types.Message, state: FSMContext
     description = message.text
     
     sql = f"""INSERT INTO notes(userid, header, description) 
-    VALUES ({userid}, '{header}', '{description}')"""
+    VALUES ($1, $2, $3)"""
 
-    await custom_sql(sql, execute=True)
+    await custom_sql(sql, int(userid), header, description, execute=True)
     await state.clear()
     await message.answer("Запись внесена", reply_markup=reply_row_menu(["Добавить заметку", "Доступные заметки", "Главное меню"]))
 
@@ -364,11 +364,11 @@ async def redact_note_description_callback(callback: types.CallbackQuery, state:
     await callback.answer()
 
 @router.message(RedactNoteState.change, RoleCheck("worker"))
-async def redact_note_process(message: types.Message, state: FSMContext):
+async def redact_note_description_process(message: types.Message, state: FSMContext):
     data = await state.get_data()
     note_id = data['note_id']
-    sql = f"UPDATE notes SET description = '{message.text}' WHERE id = {note_id}"
-    await custom_sql(sql, execute=True)
+    sql = f"UPDATE notes SET description = $1 WHERE id = {note_id}"
+    await custom_sql(sql, message.text, execute=True)
     await message.answer("Изменения внесены.", reply_markup=get_menu())
     await state.clear()
 
@@ -461,9 +461,9 @@ async def new_software_description_process(message: types.Message, state: FSMCon
     fileurl = data['fileurl']
 
     sql = f"""INSERT INTO software(userid, filename, fileurl, description) 
-    VALUES ({userid}, '{filename}', '{fileurl}', '{description}')"""
+    VALUES ($1, $2, $3, $4)"""
 
-    await custom_sql(sql, execute=True)
+    await custom_sql(sql, int(userid), filename, fileurl, description, execute=True)
     await state.clear()
     await message.answer("Запись внесена", reply_markup=reply_row_menu(["Опубликовать ПО", "Доступное ПО", "Главное меню"]))
 
@@ -505,14 +505,14 @@ async def redact_software_process(message: types.Message, state: FSMContext):
     action = data['action'].split('_')[-1] #change action
     software_id = data['software_id']
     if action == 'name':
-        sql = f"UPDATE software SET filename = '{message.text}' WHERE id = {software_id}"
+        sql = f"UPDATE software SET filename = $1 WHERE id = {software_id}"
     elif action == 'url':
-        sql = f"UPDATE software SET fileurl = '{message.text}' WHERE id = {software_id}"
+        sql = f"UPDATE software SET fileurl = $1 WHERE id = {software_id}"
     elif action == 'description':
-        sql = f"UPDATE software SET description = '{message.text}' WHERE id = {software_id}"
+        sql = f"UPDATE software SET description = $1 WHERE id = {software_id}"
     else:
         sql = f"SELECT 1 FROM software" #donothing
-    await custom_sql(sql, execute=True)
+    await custom_sql(sql, message.text, execute=True)
     await message.answer("Изменения внесены.", reply_markup=get_menu())
     await state.clear()
 
