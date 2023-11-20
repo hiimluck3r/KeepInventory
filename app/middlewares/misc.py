@@ -3,12 +3,12 @@ from app.keyboards import get_username
 
 async def get_software():
     sql = f"SELECT id FROM software"
-    articles = await custom_sql(sql, fetch=True)
+    software_ids = await custom_sql(sql, fetch=True)
 
-    return articles
+    return software_ids
 
 async def get_software_info(id):
-    device_info = ''
+    software_info = ''
     sql = f"""SELECT * FROM software WHERE id = {id}
     """
     data = await custom_sql(sql, fetchrow=True)
@@ -17,9 +17,30 @@ async def get_software_info(id):
     description = data['description']
     user = await get_username(data['userid'])
 
-    device_info+=f"<b>{filename}</b>\n\n"
-    device_info+=f"Описание: {description}\n"
-    device_info+=f"Ссылка: {fileurl}\n\n"
-    device_info+=f"Выложил: {user}"
+    software_info+=f"<b>{filename}</b>\n\n"
+    software_info+=f"Описание: {description}\n"
+    software_info+=f"Ссылка: {fileurl}\n\n"
+    software_info+=f"Выложил: {user}"
 
-    return device_info
+    return software_info
+
+async def get_notes():
+    sql = f"SELECT id FROM notes"
+    note_ids = await custom_sql(sql, fetch=True)
+
+    return note_ids
+
+async def get_notes_info(id):
+    notes_info = ''
+    sql = f"""SELECT * FROM notes WHERE id = {id}
+    """
+    data = await custom_sql(sql, fetchrow=True)
+    header = data['header']
+    description = data['header']
+    user = await get_username(data['userid'])
+
+    notes_info+=f"<b>{header}</b>\n\n"
+    notes_info+=f"{description}\n\n"
+    notes_info+=f"Выложил: {user}"
+
+    return notes_info

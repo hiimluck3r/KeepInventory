@@ -44,7 +44,7 @@ def get_software_keyboard(id) -> list:
 
 def get_notes_keyboard(id) -> list:
     buttons = [
-        {'text': 'Изменить описание', 'action': 'notes_change_description', 'id': id},
+        {'text': 'Изменить текст', 'action': 'notes_change_description', 'id': id},
         {'text': 'Удалить', 'action': 'notes_delete', 'id': id},
     ]
 

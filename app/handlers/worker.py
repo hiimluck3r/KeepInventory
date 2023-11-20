@@ -283,6 +283,98 @@ async def complete_problem_callback(callback: types.CallbackQuery, callback_data
 Notes
 """
 
+@router.message(F.text.lower() == "заметки", RoleCheck("worker"))
+async def note_menu(message: types.Message):
+    await message.answer(f"Здесь вы можете оставить свои заметки или прочитать те, которые оставили другие пользователи.", reply_markup=reply_row_menu(["Добавить заметку", "Доступные заметки", "Главное меню"]))
+
+#Create new note record
+@router.message(F.text.lower() == "добавить заметку", RoleCheck("worker"))
+async def new_note_userid_process(message: types.Message, state: FSMContext):
+    await state.update_data(userid = message.from_user.id)
+    await state.set_state(NewNote.header)
+    await message.answer(f"Введите заголовок", reply_markup=reply_row_menu(["Отмена"]))
+
+@router.message(NewNote.header, RoleCheck("worker"))
+async def new_note_header_process(message: types.Message, state: FSMContext):
+    await state.update_data(header = message.text)
+    await state.set_state(NewNote.description)
+    await message.answer(f"Введите текст заметки", reply_markup=reply_row_menu(["Отмена"]))
+
+@router.message(NewNote.description, RoleCheck("worker"))
+async def new_note_description_process(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    userid = data['userid']
+    header = data['header']
+    description = message.text
+    
+    sql = f"""INSERT INTO notes(userid, header, description) 
+    VALUES ({userid}, '{header}', '{description}')"""
+
+    await custom_sql(sql, execute=True)
+    await state.clear()
+    await message.answer(f"Запись внесена", reply_markup=reply_row_menu(["Добавить заметку", "Доступные заметки", "Главное меню"]))
+
+#Redact note record
+@router.callback_query(RedactNotes.filter(F.action == "notes_change_description"), RoleCheck("worker"))
+async def redact_note_description_callback(callback: types.CallbackQuery, state: FSMContext, callback_data = RedactNotes):
+    await state.update_data(note_id = callback_data.id, action = callback_data.action)
+    await state.set_state(RedactNoteState.change)
+    await callback.message.answer("Введите текст заметки:", reply_markup=reply_row_menu(["Отмена"]))
+    await callback.answer()
+
+@router.message(RedactNoteState.change, RoleCheck("worker"))
+async def redact_note_process(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    note_id = data['note_id']
+    sql = f"UPDATE notes SET description = '{message.text}' WHERE id = {note_id}"
+    await custom_sql(sql, execute=True)
+    await message.answer("Изменения внесены.", reply_markup=get_menu())
+    await state.clear()
+
+#Delete note record
+@router.callback_query(RedactSoftware.filter(F.action == "notes_delete"), RoleCheck("worker"))
+async def delete_note_callback(callback: types.CallbackQuery, callback_data = RedactSoftware):
+    sql = f"DELETE FROM notes WHERE id = '{callback_data.id}'"
+    await custom_sql(sql, execute=True)
+    await callback.message.answer("Заметка удалена.", reply_markup=get_menu())
+    await callback.answer()
+
+#Notes carousel menu
+@router.message(F.text.lower() == "доступные заметки", RoleCheck("worker"))
+async def notes_uploaded_menu(message: types.Message, state: FSMContext):
+    notes = await get_notes()
+    if notes != None:
+        note_id = notes[0]['id']
+        await state.set_state(Notes.init)
+        keyboard = get_notes_keyboard(note_id)
+        await message.answer(await get_notes_info(note_id), reply_markup=paginator(keyboard, "notes", 0), parse_mode="HTML")
+    else:
+        await message.answer("На данный момент заметки отсутствуют.", reply_markup=reply_row_menu(["Добавить заметку", "Главное меню"]))
+
+@dp.callback_query(Notes.init, PaginationValues.filter(F.action.in_(["next", "prev"])), RoleCheck("worker"))
+async def notes_uploaded_pageswap(callback: types.CallbackQuery, callback_data: PaginationValues):
+    notes = await get_notes()
+    if notes == None:
+        await message.answer("На данный момент заметки отсутствуют.", reply_markup=reply_row_menu(["Добавить заметку", "Главное меню"]))
+    else:
+        current_page = int(callback_data.page)
+        page = None
+
+        if callback_data.action == "prev":
+            page = current_page-1 if current_page>0 else len(notes)-1 #previous page
+        else:
+            page = current_page+1 if current_page<(len(notes)-1) else 0 #next page
+        
+        with suppress(TelegramBadRequest):
+            note_id = note[page]['id']
+            keyboard = get_software_keyboard(note_id)
+            await callback.message.edit_text(
+                await get_notes_info(note_id),
+                reply_markup=paginator(keyboard, "notes", page),
+                parse_mode="HTML"
+            )
+    await callback.answer()
+
 """
 Software
 """
@@ -385,7 +477,7 @@ async def software_uploaded_menu(message: types.Message, state: FSMContext):
     else:
         await message.answer("На данный момент программное обеспечение отсутствует.", reply_markup=reply_row_menu(["Опубликовать ПО", "Главное меню"]))
 
-@dp.callback_query(Software.init, PaginationValues.filter(F.action.in_(["next", "prev"])), RoleCheck("spectator"))
+@dp.callback_query(Software.init, PaginationValues.filter(F.action.in_(["next", "prev"])), RoleCheck("worker"))
 async def software_uploaded_pageswap(callback: types.CallbackQuery, callback_data: PaginationValues):
     software = await get_software()
     if software == None:
