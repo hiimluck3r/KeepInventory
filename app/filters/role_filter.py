@@ -8,7 +8,6 @@ from app import ROOT
 class RoleCheck(Filter):
     def __init__(self, role: str) -> None:
         self.role = role
-        pass
 
     async def __call__(self, query_or_message: Union[types.Message, types.CallbackQuery]) -> bool:  
         if self.role == "admin": #role = 2 - admin

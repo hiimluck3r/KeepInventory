@@ -2,10 +2,8 @@ from app.db.operations import *
 from app.keyboards import get_username
 
 async def get_software():
-    sql = f"SELECT id FROM software"
-    software_ids = await custom_sql(sql, fetch=True)
-
-    return software_ids
+    sql = "SELECT id FROM software"
+    return await custom_sql(sql, fetch=True)
 
 async def get_software_info(id):
     software_info = ''
@@ -25,10 +23,8 @@ async def get_software_info(id):
     return software_info
 
 async def get_notes():
-    sql = f"SELECT id FROM notes"
-    note_ids = await custom_sql(sql, fetch=True)
-
-    return note_ids
+    sql = "SELECT id FROM notes"
+    return await custom_sql(sql, fetch=True)
 
 async def get_notes_info(id):
     notes_info = ''

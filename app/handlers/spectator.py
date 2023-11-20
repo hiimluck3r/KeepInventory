@@ -31,7 +31,7 @@ template: *nickname* - *userid* - *role*
 @router.message(Command("users"), RoleCheck("spectator"))
 async def users_list(message: types.Message, command: CommandObject):
     users = await custom_sql("SELECT * FROM users", fetch=True)
-    result = f"Список пользователей:"
+    result = "Список пользователей:"
     for row in users:
         role = None
         if row['role'] == 3:
@@ -52,7 +52,10 @@ Barcode search
 
 @router.message(F.text=="Поиск по штрих-коду", RoleCheck("spectator"))
 async def barcode_search(message: types.Message, state: FSMContext):
-    await message.answer(f"Пришлите фотографию, на которой чётко видно штрих-код", reply_markup=reply_row_menu(["Отмена"]))
+    await message.answer(
+        "Пришлите фотографию, на которой чётко видно штрих-код",
+        reply_markup=reply_row_menu(["Отмена"]),
+    )
     await state.set_state(BarcodeImage.image)
 
 @router.message(RoleCheck("spectator"), F.photo, BarcodeImage.image)
@@ -101,7 +104,10 @@ Article search
 
 @router.message(F.text=="Поиск по артикулу", RoleCheck("spectator"))
 async def article_search(message: types.Message, state: FSMContext):
-    await message.answer(f"Введите последние символы артикула (чем больше символов - тем меньше выборка):", reply_markup=reply_row_menu(["Отмена"]))
+    await message.answer(
+        "Введите последние символы артикула (чем больше символов - тем меньше выборка):",
+        reply_markup=reply_row_menu(["Отмена"]),
+    )
     await state.set_state(ArticleSearch.article)
 
 @router.message(F.text, RoleCheck("spectator"), ArticleSearch.article)
@@ -155,7 +161,10 @@ New Device creation lock
 
 @router.message(F.text.lower() == "новое устройство", ~(RoleCheck("worker")))
 async def new_device_decline_spectator(message: types.Message):
-    await message.answer(f"Вы не можете внести запись о новом устройстве.", reply_markup=get_menu())
+    await message.answer(
+        "Вы не можете внести запись о новом устройстве.",
+        reply_markup=get_menu(),
+    )
 
 """
 Problematic Devices menu
@@ -175,7 +184,7 @@ async def problematic_devices_menu(message: types.Message, state: FSMContext):
 @dp.callback_query(ProblematicDevices.init, PaginationValues.filter(F.action.in_(["next", "prev"])), RoleCheck("spectator"))
 async def problematic_devices_pageswap(callback: types.CallbackQuery, callback_data: PaginationValues):
     articles = await get_problematic_devices()
-    if articles == None:
+    if articles is None:
         await message.answer("Проблемных устройств на данный момент не имеется.", reply_markup=get_menu())
     else:
         current_page = int(callback_data.page)
@@ -185,7 +194,7 @@ async def problematic_devices_pageswap(callback: types.CallbackQuery, callback_d
             page = current_page-1 if current_page>0 else len(articles)-1 #previous page
         else:
             page = current_page+1 if current_page<(len(articles)-1) else 0 #next page
-        
+
         with suppress(TelegramBadRequest):
             article = articles[page]['articlenumber']
             keyboard = get_problematic_device_keyboard(article) if await role_check_function(callback.message.chat.id, "worker") else []

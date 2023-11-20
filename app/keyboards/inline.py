@@ -33,32 +33,54 @@ def paginator(buttons: list = [], mode: str = "problematic", page: int = 0) -> I
     return builder.as_markup()
 
 def get_software_keyboard(id) -> list:
-    buttons = [
-        {'text': 'Изменить название', 'action': 'software_change_name', 'id': id},
-        {'text': 'Изменить описание', 'action': 'software_change_description', 'id': id},
+    return [
+        {
+            'text': 'Изменить название',
+            'action': 'software_change_name',
+            'id': id,
+        },
+        {
+            'text': 'Изменить описание',
+            'action': 'software_change_description',
+            'id': id,
+        },
         {'text': 'Изменить ссылку', 'action': 'software_change_url', 'id': id},
         {'text': 'Удалить', 'action': 'software_delete', 'id': id},
     ]
 
-    return buttons
-
 def get_notes_keyboard(id) -> list:
-    buttons = [
-        {'text': 'Изменить текст', 'action': 'notes_change_description', 'id': id},
+    return [
+        {
+            'text': 'Изменить текст',
+            'action': 'notes_change_description',
+            'id': id,
+        },
         {'text': 'Удалить', 'action': 'notes_delete', 'id': id},
     ]
 
-    return buttons
-
 def get_problematic_device_keyboard(articleNumber) -> list:
-    buttons = [
-        {'text': 'Описание проблемы', 'action': 'problematic_change_problem', 'articleNumber': articleNumber}, #p == problematic
-        {'text': 'Описание решения', 'action': 'problematic_change_solution', 'articleNumber': articleNumber},
-        {'text': 'Удалить', 'action': 'problematic_delete', 'articleNumber': articleNumber},
-        {'text': 'Отметить исправленным', 'action': 'problematic_complete', 'articleNumber': articleNumber}
+    return [
+        {
+            'text': 'Описание проблемы',
+            'action': 'problematic_change_problem',
+            'articleNumber': articleNumber,
+        },  # p == problematic
+        {
+            'text': 'Описание решения',
+            'action': 'problematic_change_solution',
+            'articleNumber': articleNumber,
+        },
+        {
+            'text': 'Удалить',
+            'action': 'problematic_delete',
+            'articleNumber': articleNumber,
+        },
+        {
+            'text': 'Отметить исправленным',
+            'action': 'problematic_complete',
+            'articleNumber': articleNumber,
+        },
     ]
-
-    return buttons
 
 def get_dashboard_menu() -> InlineKeyboardBuilder:
     builder = InlineKeyboardBuilder()

@@ -9,11 +9,9 @@ async def get_code(image):
             return [False, "Не удалось найти штрих-коды. Попробуйте изменить ракурс таким образом, чтобы штрих-код было чётко видно"]
         for barcode in barcodes:
             btype = barcode.type
-            if btype == 'QRCODE':
-                pass
-            else:
+            if btype != 'QRCODE':
                 bdata = barcode.data.decode("utf-8")
                 return [True, bdata]
-        
+
     except Exception as e:
         return [False, e]

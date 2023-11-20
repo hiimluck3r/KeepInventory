@@ -6,19 +6,13 @@ async def article_guard(articleNumber):
     sql = f"SELECT EXISTS(SELECT 1 FROM devices WHERE articleNumber = '{articleNumber}')"
     result = await custom_sql(sql, fetchval=True)
     print(f"Result: {result}", file=sys.stderr)
-    if result==True:
-        return True
-    else:
-        return False
+    return result == True
 
 async def problematic_device_guard(articleNumber):
     sql = f"SELECT EXISTS(SELECT 1 FROM problematicDevices WHERE articleNumber = '{articleNumber}')"
     result = await custom_sql(sql, fetchval=True)
     print(f"Result: {result}", file=sys.stderr)
-    if result==True:
-        return True
-    else:
-        return False
+    return result == True
 
 async def get_device_info(articleNumber):
     sql = f"SELECT * FROM devices WHERE articleNumber = '{articleNumber}'"
@@ -45,23 +39,20 @@ async def get_device_info(articleNumber):
 async def multiple_articles(articleNumberIncomplete):
     sql = f"SELECT articleNumber FROM devices WHERE articleNumber ILIKE '%{articleNumberIncomplete}'"
     articles = await custom_sql(sql, fetch=True)
-    if articles:
-        articles_clear = []
-        answer_text = f"Артикулы с подстрокой {articleNumberIncomplete}:\n"
-        for i in range(len(articles)):
-            item = articles[i]['articlenumber']
-            articles_clear.append(item)
-            answer_text+=f"{i+1}. {item}\n"
-        answer_text+=f"\nВведите номер интересующего вас артикула:"
-        return True, answer_text, articles_clear
-    else:
+    if not articles:
         return False, f"Артикулов с подстрокой {articleNumberIncomplete} не найдено.", []
+    articles_clear = []
+    answer_text = f"Артикулы с подстрокой {articleNumberIncomplete}:\n"
+    for i in range(len(articles)):
+        item = articles[i]['articlenumber']
+        articles_clear.append(item)
+        answer_text+=f"{i+1}. {item}\n"
+    answer_text+=f"\nВведите номер интересующего вас артикула:"
+    return True, answer_text, articles_clear
 
 async def get_problematic_devices():
-    sql = f"SELECT articleNumber FROM problematicDevices"
-    articles = await custom_sql(sql, fetch=True)
-
-    return articles
+    sql = "SELECT articleNumber FROM problematicDevices"
+    return await custom_sql(sql, fetch=True)
 
 async def get_problematic_device_info(articleNumber):
     device_info = ''
@@ -75,11 +66,7 @@ async def get_problematic_device_info(articleNumber):
 
     device_info+=f"Артикул: {articleNumber}\n"
 
-    if status:
-        device_info+="Статус: Исправлено\n"
-    else:
-        device_info+="Статус: В работе\n"
-    
+    device_info += "Статус: Исправлено\n" if status else "Статус: В работе\n"
     device_info+=f"\nОписание проблемы: {problemDescription}\n"
     device_info+=f"\nРешение проблемы: {solutionDescription}\n"
     device_info+=f"Работает: {user}"

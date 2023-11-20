@@ -23,7 +23,9 @@ Create new device
 
 @router.message(F.text.lower() == "новое устройство", RoleCheck("worker"))
 async def new_device_setup(message: types.Message, state: FSMContext):
-    await message.answer(f"Введите номер артикула:", reply_markup=reply_row_menu(['Отмена']))
+    await message.answer(
+        "Введите номер артикула:", reply_markup=reply_row_menu(['Отмена'])
+    )
     await state.set_state(NewDevice.article)
 
 @router.message(F.text, RoleCheck("worker"), NewDevice.article)
@@ -34,14 +36,20 @@ async def new_device_article_process(message: types.Message, state: FSMContext):
         buttons = [types.InlineKeyboardButton(text="Создать новую запись", callback_data=f"create.{article}")]
         await message.answer(f"Устройство с артикулом: {article} не было найдено.", reply_markup=inline_row_menu(buttons))
     else:
-        await message.answer(f"Устройство с таким артикулом уже существует.", reply_markup=get_menu())
+        await message.answer(
+            "Устройство с таким артикулом уже существует.",
+            reply_markup=get_menu(),
+        )
 
 @router.callback_query(F.data.startswith('create'), RoleCheck("worker"))
 async def create_device_callback(callback: types.CallbackQuery, state: FSMContext):
     articleNumber = callback.data.split(".")[1]
     await state.update_data(articleNumber=articleNumber)
     await state.set_state(NewDevice.category)
-    await callback.message.answer(f"Укажите категорию устройства:", reply_markup=reply_row_menu(["Отмена"]))
+    await callback.message.answer(
+        "Укажите категорию устройства:",
+        reply_markup=reply_row_menu(["Отмена"]),
+    )
     await callback.answer()
 
 @router.message(NewDevice.category, RoleCheck("worker"), F.text)
@@ -49,56 +57,79 @@ async def create_device_category_callback(message: types.Message, state: FSMCont
     await state.update_data(category=message.text)
     await state.set_state(NewDevice.subcategory)
 
-    await message.answer(f"Укажите подкатегорию устройства:", reply_markup=reply_row_menu(["Отмена"]))
+    await message.answer(
+        "Укажите подкатегорию устройства:",
+        reply_markup=reply_row_menu(["Отмена"]),
+    )
 
 @router.message(NewDevice.subcategory, RoleCheck("worker"), F.text)
 async def create_device_subcategory_callback(message: types.Message, state: FSMContext):
     await state.update_data(subcategory=message.text)
     await state.set_state(NewDevice.name)
 
-    await message.answer(f"Укажите название устройства:", reply_markup=reply_row_menu(["Отмена"]))
+    await message.answer(
+        "Укажите название устройства:", reply_markup=reply_row_menu(["Отмена"])
+    )
 
 @router.message(NewDevice.name, RoleCheck("worker"), F.text)
 async def create_device_name_callback(message: types.Message, state: FSMContext):
     await state.update_data(name=message.text)
     await state.set_state(NewDevice.quantity)
 
-    await message.answer(f"Укажите количество устройств:", reply_markup=reply_row_menu(["Отмена"]))
+    await message.answer(
+        "Укажите количество устройств:",
+        reply_markup=reply_row_menu(["Отмена"]),
+    )
 
 @router.message(NewDevice.quantity, RoleCheck("worker"), F.text)
 async def create_device_quantity_callback(message: types.Message, state: FSMContext):
     await state.update_data(quantity=message.text)
     await state.set_state(NewDevice.productionYear)
 
-    await message.answer(f"Укажите год производства устройства:", reply_markup=reply_row_menu(["Отмена"]))
+    await message.answer(
+        "Укажите год производства устройства:",
+        reply_markup=reply_row_menu(["Отмена"]),
+    )
 
 @router.message(NewDevice.productionYear, RoleCheck("worker"), F.text)
 async def create_device_productionYear_callback(message: types.Message, state: FSMContext):
     await state.update_data(productionYear=message.text)
     await state.set_state(NewDevice.accountingYear)
 
-    await message.answer(f"Укажите год постановки устройства на учёт:", reply_markup=reply_row_menu(["Отмена"]))
+    await message.answer(
+        "Укажите год постановки устройства на учёт:",
+        reply_markup=reply_row_menu(["Отмена"]),
+    )
 
 @router.message(NewDevice.accountingYear, RoleCheck("worker"), F.text)
 async def create_device_accountingYear_callback(message: types.Message, state: FSMContext):
     await state.update_data(accountingYear=message.text)
     await state.set_state(NewDevice.location)
 
-    await message.answer(f"Укажите фактическое местонахождение устройства (прим. 404/1):", reply_markup=reply_row_menu(["Отмена"]))
+    await message.answer(
+        "Укажите фактическое местонахождение устройства (прим. 404/1):",
+        reply_markup=reply_row_menu(["Отмена"]),
+    )
 
 @router.message(NewDevice.location, RoleCheck("worker"), F.text)
 async def create_device_location_callback(message: types.Message, state: FSMContext):
     await state.update_data(location=message.text)
     await state.set_state(NewDevice.ownership)
 
-    await message.answer(f"Укажите владельца устройства:", reply_markup=reply_row_menu(["Отмена"]))
+    await message.answer(
+        "Укажите владельца устройства:",
+        reply_markup=reply_row_menu(["Отмена"]),
+    )
 
 @router.message(NewDevice.ownership, RoleCheck("worker"), F.text)
 async def create_device_ownership_callback(message: types.Message, state: FSMContext):
     await state.update_data(ownership=message.text)
     await state.set_state(NewDevice.photo)
 
-    await message.answer(f"Прикрепите фотографию устройства. Если таковой нет, отправьте любое текстовое сообщение:", reply_markup=reply_row_menu(["Отмена"]))
+    await message.answer(
+        "Прикрепите фотографию устройства. Если таковой нет, отправьте любое текстовое сообщение:",
+        reply_markup=reply_row_menu(["Отмена"]),
+    )
 
 @router.message(NewDevice.photo, RoleCheck("worker"))
 async def create_device_photo_callback(message: types.Message, state: FSMContext):
@@ -139,7 +170,7 @@ async def create_device_confirmation_callback(message: types.Message, state: FSM
 
     try:
         await custom_sql(sql, execute=True)
-        answer_text = f"Запись внесена."
+        answer_text = "Запись внесена."
     except Exception as e:
         answer_text = f"Возникла ошибка при создании записи: {e}"
     await message.answer(answer_text, reply_markup=get_menu())
@@ -153,7 +184,7 @@ Devices Manipulation
 async def change_device_callback(callback: types.CallbackQuery, state: FSMContext, callback_data: RedactDevice):
     await state.set_state(RedactDeviceState.change)
     action = callback_data.action.split('_')[-1]
-    
+
     answers = {
         'articlenumber': 'Введите новый артикул устройства:',
         'category': 'Введите новую категорию устройства:',
@@ -170,7 +201,10 @@ async def change_device_callback(callback: types.CallbackQuery, state: FSMContex
         await callback.message.answer(answers[action], reply_markup=reply_row_menu(["Отмена"]))
         await state.update_data(articleNumber=callback_data.articleNumber, action=action)
     except Exception as e:
-        await callback.message.answer(f"Возникла непредвиденная ошибка. Обратитесь к администратору.", reply_markup=reply_row_menu(["Главное меню"]))
+        await callback.message.answer(
+            "Возникла непредвиденная ошибка. Обратитесь к администратору.",
+            reply_markup=reply_row_menu(["Главное меню"]),
+        )
     await callback.answer()
 
 @router.message(RedactDeviceState.change, RoleCheck("worker"))
@@ -178,19 +212,14 @@ async def change_device_process(message: types.Message, state: FSMContext):
     data = await state.get_data()
     action = data['action']
     articleNumber = data['articleNumber']
-    
+
     is_correct = True #incorrect info will be flagged as false
     sql = None
 
     if action == 'photo':
-        if message.photo is not None:
-            photo_id = message.photo[-1].file_id
-        else:
-            photo_id = '-'
-        
+        photo_id = message.photo[-1].file_id if message.photo is not None else '-'
         sql = f"UPDATE devices SET {action} = '{photo_id}' WHERE articleNumber = '{data['articleNumber']}'"
-        pass
-    elif action != 'photo' and message.text is not None:
+    elif message.text is not None:
         if action in ['quantity', 'productionyear', 'accountingyear']:
             sql = f"UPDATE devices SET {action} = {message.text} WHERE articleNumber = '{data['articleNumber']}'"
         else: #article, category, subcategory, etc.
@@ -198,11 +227,11 @@ async def change_device_process(message: types.Message, state: FSMContext):
     else:
         await message.answer("Ошибка: некорректная информация.", reply_markup=reply_row_menu(['Главное меню']))
         is_correct = False
-    
+
     if is_correct:
         await custom_sql(sql, execute=True)
         await state.clear()
-        await message.answer(f"Изменения внесены.", reply_markup=get_menu())
+        await message.answer("Изменения внесены.", reply_markup=get_menu())
 
 @router.callback_query(RedactDevice.filter(F.action.startswith("delete")), RoleCheck("worker"))
 async def delete_device_process(callback: types.CallbackQuery, callback_data = RedactDevice):
@@ -285,20 +314,29 @@ Notes
 
 @router.message(F.text.lower() == "заметки", RoleCheck("worker"))
 async def note_menu(message: types.Message):
-    await message.answer(f"Здесь вы можете оставить свои заметки или прочитать те, которые оставили другие пользователи.", reply_markup=reply_row_menu(["Добавить заметку", "Доступные заметки", "Главное меню"]))
+    await message.answer(
+        "Здесь вы можете оставить свои заметки или прочитать те, которые оставили другие пользователи.",
+        reply_markup=reply_row_menu(
+            ["Добавить заметку", "Доступные заметки", "Главное меню"]
+        ),
+    )
 
 #Create new note record
 @router.message(F.text.lower() == "добавить заметку", RoleCheck("worker"))
 async def new_note_userid_process(message: types.Message, state: FSMContext):
     await state.update_data(userid = message.from_user.id)
     await state.set_state(NewNote.header)
-    await message.answer(f"Введите заголовок", reply_markup=reply_row_menu(["Отмена"]))
+    await message.answer(
+        "Введите заголовок", reply_markup=reply_row_menu(["Отмена"])
+    )
 
 @router.message(NewNote.header, RoleCheck("worker"))
 async def new_note_header_process(message: types.Message, state: FSMContext):
     await state.update_data(header = message.text)
     await state.set_state(NewNote.description)
-    await message.answer(f"Введите текст заметки", reply_markup=reply_row_menu(["Отмена"]))
+    await message.answer(
+        "Введите текст заметки", reply_markup=reply_row_menu(["Отмена"])
+    )
 
 @router.message(NewNote.description, RoleCheck("worker"))
 async def new_note_description_process(message: types.Message, state: FSMContext):
@@ -306,13 +344,18 @@ async def new_note_description_process(message: types.Message, state: FSMContext
     userid = data['userid']
     header = data['header']
     description = message.text
-    
+
     sql = f"""INSERT INTO notes(userid, header, description) 
     VALUES ({userid}, '{header}', '{description}')"""
 
     await custom_sql(sql, execute=True)
     await state.clear()
-    await message.answer(f"Запись внесена", reply_markup=reply_row_menu(["Добавить заметку", "Доступные заметки", "Главное меню"]))
+    await message.answer(
+        "Запись внесена",
+        reply_markup=reply_row_menu(
+            ["Добавить заметку", "Доступные заметки", "Главное меню"]
+        ),
+    )
 
 #Redact note record
 @router.callback_query(RedactNotes.filter(F.action == "notes_change_description"), RoleCheck("worker"))
@@ -354,7 +397,7 @@ async def notes_uploaded_menu(message: types.Message, state: FSMContext):
 @dp.callback_query(Notes.init, PaginationValues.filter(F.action.in_(["next", "prev"])), RoleCheck("worker"))
 async def notes_uploaded_pageswap(callback: types.CallbackQuery, callback_data: PaginationValues):
     notes = await get_notes()
-    if notes == None:
+    if notes is None:
         await message.answer("На данный момент заметки отсутствуют.", reply_markup=reply_row_menu(["Добавить заметку", "Главное меню"]))
     else:
         current_page = int(callback_data.page)
@@ -364,7 +407,7 @@ async def notes_uploaded_pageswap(callback: types.CallbackQuery, callback_data: 
             page = current_page-1 if current_page>0 else len(notes)-1 #previous page
         else:
             page = current_page+1 if current_page<(len(notes)-1) else 0 #next page
-        
+
         with suppress(TelegramBadRequest):
             note_id = note[page]['id']
             keyboard = get_software_keyboard(note_id)
@@ -381,26 +424,37 @@ Software
 
 @router.message(F.text.lower() == "программное обеспечение", RoleCheck("worker"))
 async def software_menu(message: types.Message):
-    await message.answer(f"Здесь вы можете опубликовать свое ПО или найти уже опубликованное другими пользователями.", reply_markup=reply_row_menu(["Опубликовать ПО", "Доступное ПО", "Главное меню"]))
+    await message.answer(
+        "Здесь вы можете опубликовать свое ПО или найти уже опубликованное другими пользователями.",
+        reply_markup=reply_row_menu(
+            ["Опубликовать ПО", "Доступное ПО", "Главное меню"]
+        ),
+    )
 
 #Create new software record
 @router.message(F.text.lower() == "опубликовать по", RoleCheck("worker"))
 async def new_software_userid_process(message: types.Message, state: FSMContext):
     await state.update_data(userid = message.from_user.id)
     await state.set_state(NewSoftware.filename)
-    await message.answer(f"Введите название ПО", reply_markup=reply_row_menu(["Отмена"]))
+    await message.answer(
+        "Введите название ПО", reply_markup=reply_row_menu(["Отмена"])
+    )
 
 @router.message(NewSoftware.filename, RoleCheck("worker"))
 async def new_software_name_process(message: types.Message, state: FSMContext):
     await state.update_data(filename = message.text)
     await state.set_state(NewSoftware.fileurl)
-    await message.answer(f"Введите ссылку на ПО", reply_markup=reply_row_menu(["Отмена"]))
+    await message.answer(
+        "Введите ссылку на ПО", reply_markup=reply_row_menu(["Отмена"])
+    )
 
 @router.message(NewSoftware.fileurl, RoleCheck("worker"))
 async def new_software_url_process(message: types.Message, state: FSMContext):
     await state.update_data(fileurl = message.text)
     await state.set_state(NewSoftware.description)
-    await message.answer(f"Введите описание ПО", reply_markup=reply_row_menu(["Отмена"]))
+    await message.answer(
+        "Введите описание ПО", reply_markup=reply_row_menu(["Отмена"])
+    )
 
 @router.message(NewSoftware.description, RoleCheck("worker"))
 async def new_software_description_process(message: types.Message, state: FSMContext):
@@ -415,7 +469,12 @@ async def new_software_description_process(message: types.Message, state: FSMCon
 
     await custom_sql(sql, execute=True)
     await state.clear()
-    await message.answer(f"Запись внесена", reply_markup=reply_row_menu(["Опубликовать ПО", "Доступное ПО", "Главное меню"]))
+    await message.answer(
+        "Запись внесена",
+        reply_markup=reply_row_menu(
+            ["Опубликовать ПО", "Доступное ПО", "Главное меню"]
+        ),
+    )
 
 
 #Redact software record
@@ -445,14 +504,14 @@ async def redact_software_process(message: types.Message, state: FSMContext):
     data = await state.get_data()
     action = data['action'].split('_')[-1] #change action
     software_id = data['software_id']
-    if action == 'name':
+    if action == 'description':
+        sql = f"UPDATE software SET description = '{message.text}' WHERE id = {software_id}"
+    elif action == 'name':
         sql = f"UPDATE software SET filename = '{message.text}' WHERE id = {software_id}"
     elif action == 'url':
         sql = f"UPDATE software SET fileurl = '{message.text}' WHERE id = {software_id}"
-    elif action == 'description':
-        sql = f"UPDATE software SET description = '{message.text}' WHERE id = {software_id}"
     else:
-        sql = f"SELECT 1 FROM software" #donothing
+        sql = "SELECT 1 FROM software"
     await custom_sql(sql, execute=True)
     await message.answer("Изменения внесены.", reply_markup=get_menu())
     await state.clear()
@@ -480,7 +539,7 @@ async def software_uploaded_menu(message: types.Message, state: FSMContext):
 @dp.callback_query(Software.init, PaginationValues.filter(F.action.in_(["next", "prev"])), RoleCheck("worker"))
 async def software_uploaded_pageswap(callback: types.CallbackQuery, callback_data: PaginationValues):
     software = await get_software()
-    if software == None:
+    if software is None:
         await message.answer("На данный момент программное обеспечение отсутствует.", reply_markup=reply_row_menu(["Опубликовать ПО", "Главное меню"]))
     else:
         current_page = int(callback_data.page)
@@ -490,7 +549,7 @@ async def software_uploaded_pageswap(callback: types.CallbackQuery, callback_dat
             page = current_page-1 if current_page>0 else len(software)-1 #previous page
         else:
             page = current_page+1 if current_page<(len(software)-1) else 0 #next page
-        
+
         with suppress(TelegramBadRequest):
             software_id = software[page]['id']
             keyboard = get_software_keyboard(software_id)
