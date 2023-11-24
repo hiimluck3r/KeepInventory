@@ -5,3 +5,10 @@ class GreetText(StatesGroup):
 
 class Logs(StatesGroup):
     confirmation = State()
+
+class BackupUpload(StatesGroup):
+    users = State()
+    devices = State()
+    problematicDevices = State()
+    software = State()
+    notes = State()

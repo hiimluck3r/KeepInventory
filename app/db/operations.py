@@ -52,3 +52,7 @@ async def get_users_by_role(role):
 
 async def do_backup(tableName):
     await database.execute(tableName, download=True)
+
+async def do_upload_backup(tableName):
+    sql = f"DELETE FROM {tableName}"
+    await database.execute(sql, tableName, upload=True)

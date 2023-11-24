@@ -43,6 +43,93 @@ async def download_backup(callback: types.CallbackQuery):
             await callback.message.answer(f'Непредвиденная ошибка: {e}')
         await callback.answer()
 
+#Upload backup
+@router.callback_query(RoleCheck("admin"), F.data == "backup_upload")
+async def upload_backup(callback: types.CallbackQuery, state: FSMContext):
+    tables = ['users', 'devices', 'problematicdevices', 'software', 'notes']
+    await state.set_state(BackupUpload.users)
+    await state.update_data(tables = tables)
+
+    await callback.message.answer("Делаю резервное копирование данных...")
+    for table in tables:
+        await do_backup(table)
+        filepath = types.FSInputFile(f'app/backups/{table}.csv')
+        try:
+            await callback.message.answer_document(document=filepath, filename=f'{table}.csv', caption=f'Таблица {table}')
+        except Exception as e:
+            await callback.message.answer(f'Непредвиденная ошибка: {e}')
+
+    await callback.message.answer(
+        """⚠️ Backup upload ⚠️\n\nВ ходе загрузки бэкапа все нынешние данные удалятся.
+        \nЧтобы их не потерять, скачайте резервные копии, актуальные на текущий момент.
+        \nБэкапы в этой версии бота сохраняются как .csv файлы, что требует внимательной обработки данных и деления её на правильные столбцы.
+        \nНЕ ИСПОЛЬЗУЙТЕ HEADER (заголовки/названия столбцов).
+        \nФормат записи вы можете найти в актуальных бэкапах.
+        \nПомните, что все действия производятся сугубо на ваш страх и риск и могут привести к полной потере данных.
+        \n\nЗагрузите таблицу с пользователями (users.csv):""", reply_markup=reply_row_menu(["Отмена"])
+    )
+    await callback.answer()
+
+@router.message(RoleCheck("admin"), BackupUpload.users, F.document)
+async def upload_backup_users_process(message: types.Message, state: FSMContext):
+    try:
+        document = message.document
+        await bot.download(document, destination="app/uploaded_backups/users.csv")
+        await do_upload_backup("users")
+        await state.set_state(BackupUpload.devices)
+        await message.answer("Загрузите таблицу с устройствами (devices.csv):", reply_markup=reply_row_menu(["Отмена"]))
+    except Exception as e:
+        await state.clear()
+        await message.answer(f"Непредвиденная ошибка: {e}", reply_markup=get_menu())
+
+@router.message(RoleCheck("admin"), BackupUpload.devices, F.document)
+async def upload_backup_devices_process(message: types.Message, state: FSMContext):
+    try:
+        document = message.document
+        await bot.download(document, destination="app/uploaded_backups/devices.csv")
+        await do_upload_backup("devices")
+        await state.set_state(BackupUpload.problematicDevices)
+        await message.answer("Загрузите таблицу с проблемными устройствами (problematicdevices.csv):", reply_markup=reply_row_menu(["Отмена"]))
+    except Exception as e:
+        await state.clear()
+        await message.answer(f"Непредвиденная ошибка: {e}", reply_markup=get_menu())
+
+@router.message(RoleCheck("admin"), BackupUpload.problematicDevices, F.document)
+async def upload_backup_problematic_devices_process(message: types.Message, state: FSMContext):
+    try:
+        document = message.document
+        await bot.download(document, destination="app/uploaded_backups/problematicdevices.csv")
+        await do_upload_backup("problematicdevices")
+        await state.set_state(BackupUpload.software)
+        await message.answer("Загрузите таблицу с программным обеспечением (software.csv):", reply_markup=reply_row_menu(["Отмена"]))
+    except Exception as e:
+        await state.clear()
+        await message.answer(f"Непредвиденная ошибка: {e}", reply_markup=get_menu())
+
+@router.message(RoleCheck("admin"), BackupUpload.software, F.document)
+async def upload_backup_software_process(message: types.Message, state: FSMContext):
+    try:
+        document = message.document
+        await bot.download(document, destination="app/uploaded_backups/software.csv")
+        await do_upload_backup("software")
+        await state.set_state(BackupUpload.notes)
+        await message.answer("Загрузите таблицу с заметками (software.csv):", reply_markup=reply_row_menu(["Отмена"]))
+    except Exception as e:
+        await state.clear()
+        await message.answer(f"Непредвиденная ошибка: {e}", reply_markup=get_menu())
+
+@router.message(RoleCheck("admin"), BackupUpload.notes, F.document)
+async def upload_backup_notes_process(message: types.Message, state: FSMContext):
+    try:
+        document = message.document
+        await bot.download(document, destination="app/uploaded_backups/notes.csv")
+        await do_upload_backup("notes")
+        await state.clear()
+        await message.answer("Загрузка данных успешно завершена. Проверьте целостность данных в ходе использования бота.", reply_markup=get_menu())
+    except Exception as e:
+        await state.clear()
+        await message.answer(f"Непредвиденная ошибка: {e}", reply_markup=get_menu())
+
 """
 User Manipulation
 """
@@ -159,7 +246,7 @@ async def logs_callback(callback: types.CallbackQuery, state: FSMContext):
         await state.update_data(logs = logs)
     else:
         answer_text="Лог-файлов не обнаружено."
-    await callback.message.answer(answer_text, reply_markup=get_menu(), parse_mode="HTML")
+    await callback.message.answer(answer_text, reply_markup=reply_row_menu(["Отмена"]), parse_mode="HTML")
     await callback.answer()
 
 @router.message(Logs.confirmation, RoleCheck("admin"), F.text)

@@ -11,7 +11,7 @@ class DatabaseClass:
     async def create_pool(self):
         self.pool = await asyncpg.create_pool(database=DB, user=DBUSER, password=PASSWORD, host=HOST, port=PORT)
 
-    async def execute(self, command: str, *args, fetch: bool = False, fetchval: bool = False, fetchrow: bool = False, execute: bool = False, download: bool = False):
+    async def execute(self, command: str, *args, fetch: bool = False, fetchval: bool = False, fetchrow: bool = False, execute: bool = False, download: bool = False, upload: bool = False):
         if self.pool is None:
             await self.create_pool()
         result = None
@@ -28,9 +28,17 @@ class DatabaseClass:
                 elif download:
                     print(command, file = sys.stderr)
                     result = await connection.copy_from_table(
-                        command, output = f'app/backups/{command}.csv' #command = name of the table
+                        command, output = f'app/backups/{command}.csv', #command = name of the table
+                        format = 'csv'
                     )
                     print(f"Made a backup of {command}: {result}", file = sys.stderr)
+                elif upload:
+                    tableName = args[0]
+                    deletion_result = await connection.execute(command)
+                    result = await connection.copy_to_table(
+                        tableName, source = f'app/uploaded_backups/{tableName}.csv',
+                        format = 'csv'
+                    )
         return result
 
 database = DatabaseClass()
