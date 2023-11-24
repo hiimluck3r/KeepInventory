@@ -50,7 +50,7 @@ def get_notes_keyboard(id) -> list:
 
     return buttons
 
-def get_problematic_device_keyboard(articleNumber) -> list:
+def get_problematic_device_keyboard(articleNumber: str) -> list:
     buttons = [
         {'text': 'Описание проблемы', 'action': 'problematic_change_problem', 'articleNumber': articleNumber}, #p == problematic
         {'text': 'Описание решения', 'action': 'problematic_change_solution', 'articleNumber': articleNumber},
@@ -60,13 +60,29 @@ def get_problematic_device_keyboard(articleNumber) -> list:
 
     return buttons
 
+def delete_log_keyboard(path: str) -> InlineKeyboardBuilder:
+    builder = InlineKeyboardBuilder()
+    
+    buttons = [
+        {'text': 'Удалить все логи', 'action': 'delete_all_logs', 'path': None},
+        {'text': 'Удалить текущий лог', 'action': 'delete_current_log', 'path': path}
+    ]
+
+    for button in buttons:
+        builder.button(
+            text = button['text'], callback_data=LogsInfo(action=button['action'], path=button['path']).pack()
+        )
+    builder.adjust(len(buttons), 0)
+
+    return builder.as_markup()
+
 def get_dashboard_menu() -> InlineKeyboardBuilder:
     builder = InlineKeyboardBuilder()
     buttons = [
         types.InlineKeyboardButton(text="Изменить greet_user", callback_data="changegreet_user"),
         types.InlineKeyboardButton(text="Изменить greet_stranger", callback_data="changegreet_stranger"),
         types.InlineKeyboardButton(text="Сделать бэкап", callback_data="backup_download"),
-        #types.InlineKeyboardButton(text="Загрузить бэкап", callback_data="backup_upload"), #todo
+        types.InlineKeyboardButton(text="Загрузить бэкап", callback_data="backup_upload"), #todo
         types.InlineKeyboardButton(text="Просмотреть логи", callback_data="logs"),
         types.InlineKeyboardButton(text="Перезагрузка", callback_data="reboot")
     ]
@@ -98,18 +114,18 @@ def inline_row_menu(buttons) -> InlineKeyboardBuilder:
     builder.adjust(len(buttons), 0)
     return builder.as_markup()
 
-def get_redact_menu(articleNumber) -> InlineKeyboardBuilder:
+def get_redact_menu(articleNumber: str) -> InlineKeyboardBuilder:
     builder = InlineKeyboardBuilder()
     buttons = [
         {'text': 'Артикул', 'action': 'change_articlenumber', 'articleNumber': articleNumber},
         {'text': 'Категория', 'action': 'change_category', 'articleNumber': articleNumber},
         {'text': 'Подкатегория', 'action': 'change_subcategory', 'articleNumber': articleNumber},
-        {'text': 'Название', 'action': 'change_name', 'articleNumber': articleNumber},
+        {'text': 'Наименование', 'action': 'change_name', 'articleNumber': articleNumber},
         {'text': 'Количество', 'action': 'change_quantity', 'articleNumber': articleNumber},
         {'text': 'Год производства', 'action': 'change_productionyear', 'articleNumber': articleNumber},
         {'text': 'Год начала учёта', 'action': 'change_accountingyear', 'articleNumber': articleNumber},
         {'text': 'Местонахождение', 'action': 'change_location', 'articleNumber': articleNumber},
-        {'text': 'Владение', 'action': 'change_ownership', 'articleNumber': articleNumber},
+        {'text': 'Владелец', 'action': 'change_ownership', 'articleNumber': articleNumber},
         {'text': 'Фотография', 'action': 'change_photo', 'articleNumber': articleNumber},
         {'text': 'Удалить устройство', 'action': 'delete', 'articleNumber': articleNumber},
         {'text': 'Проблемное устройство', 'action': 'make_problematic', 'articleNumber': articleNumber}

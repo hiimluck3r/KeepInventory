@@ -72,7 +72,7 @@ async def create_device_subcategory_callback(message: types.Message, state: FSMC
     await state.set_state(NewDevice.name)
 
     await message.answer(
-        "Укажите название устройства:",
+        "Укажите наименование устройства:",
         reply_markup=reply_row_menu(["Отмена"])
     )
 

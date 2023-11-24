@@ -20,3 +20,7 @@ class RedactNotes(CallbackData, prefix="redact"):
 class PaginationValues(CallbackData, prefix="pagination"):
     action: str
     page: Optional[int] | None = None
+
+class LogsInfo(CallbackData, prefix="log"):
+    action: str
+    path: Optional[str] | None = None

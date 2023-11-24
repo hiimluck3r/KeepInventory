@@ -1,6 +1,7 @@
 import asyncio
 import sys
-import os
+from os import remove
+from app.middlewares.misc import *
 from aiogram import types, Router, F
 from app.loader import dp, bot
 from app import ROOT
@@ -13,6 +14,7 @@ from aiogram.filters import CommandObject
 from aiogram.filters.command import Command
 from app.filters.role_filter import RoleCheck
 from aiogram.fsm.context import FSMContext
+from app.utils.callback_factories import LogsInfo
 
 router = Router()
 
@@ -135,5 +137,79 @@ Reboot
 async def reboot_callback(callback: types.CallbackQuery):
     await callback.message.answer("Перезагружаем бота...")
     await callback.answer()
+    exit(0)
 
-    exit()
+"""
+Logs
+"""
+
+@router.callback_query(F.data == 'logs', RoleCheck("admin"))
+async def logs_callback(callback: types.CallbackQuery, state: FSMContext):
+    
+    directory = f"/~/KeepInventory/logs"
+    logs = get_filenames(directory)
+    print(len(logs), file=sys.stderr)
+    if len(logs) != 0:
+        answer_text = f"<b>Список доступных логов:</b>\n\n"
+        for index, log in enumerate(logs):
+            answer_text+=f"{index+1}. {log}\n"
+        
+        answer_text+=f"\nОтправьте номер лога, который хотите прочитать:"
+        await state.set_state(Logs.confirmation)
+        await state.update_data(logs = logs)
+    else:
+        answer_text="Лог-файлов не обнаружено."
+    await callback.message.answer(answer_text, reply_markup=get_menu(), parse_mode="HTML")
+    await callback.answer()
+
+@router.message(Logs.confirmation, RoleCheck("admin"), F.text)
+async def logs_process(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    logs = data['logs']
+    try:
+        index = int(message.text)-1
+        if index < len(logs) and index >= 0:
+            path = f'/~/KeepInventory/logs/{logs[index]}'
+            await state.clear()
+            try:
+                log_info = ''
+                with open(path, 'r') as log:
+                    log_info = log.read()
+                
+                for c in range(0, len(log_info), 4096):
+                    await message.answer(log_info[c:c+4096], reply_markup=get_menu())
+                
+                await message.answer(
+                    "Удалить лог-файл?",
+                    reply_markup=delete_log_keyboard(path)
+                )
+            except Exception as e:
+                await message.answer(f"Возникла непредвиденная ошибка: {e}", reply_markup=get_menu())
+        else:
+            await message.answer("Некорректные данные, попробуйте ещё раз:")
+    except ValueError:
+        await message.answer("Некорректные данные, попробуйте ещё раз:")
+
+@router.callback_query(LogsInfo.filter(F.action == "delete_current_log"), RoleCheck("admin"))
+async def delete_current_log_process(callback: types.CallbackQuery, callback_data=LogsInfo):
+    path = callback_data.path
+    try:
+        remove(path)
+        await callback.message.answer(f"Лог-файл {path} был удалён.", reply_markup=get_menu())
+    except Exception as e:
+        await callback.message.answer(f"Возникла непредвиденная ошибка: {e}.")
+    finally:
+        await callback.answer()
+
+@router.callback_query(LogsInfo.filter(F.action == "delete_all_logs"), RoleCheck("admin"))
+async def delete_all_logs_process(callback: types.CallbackQuery, callback_data=LogsInfo):
+    directory = f"/~/KeepInventory/logs"
+    logs = get_filenames(directory)
+    try:
+        for log in logs:
+            remove(f"{directory}/{log}")
+        await callback.message.answer(f"Лог-файлы были удалены.", reply_markup=get_menu())
+    except Exception as e:
+        await callback.message.answer(f"Возникла непредвиденная ошибка: {e}.")
+    finally:
+        await callback.answer()
