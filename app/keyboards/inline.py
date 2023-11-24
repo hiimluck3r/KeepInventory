@@ -67,7 +67,8 @@ def get_dashboard_menu() -> InlineKeyboardBuilder:
         types.InlineKeyboardButton(text="Изменить greet_stranger", callback_data="changegreet_stranger"),
         types.InlineKeyboardButton(text="Сделать бэкап", callback_data="backup_download"),
         #types.InlineKeyboardButton(text="Загрузить бэкап", callback_data="backup_upload"), #todo
-        types.InlineKeyboardButton(text="Просмотреть логи", callback_data="logs")
+        types.InlineKeyboardButton(text="Просмотреть логи", callback_data="logs"),
+        types.InlineKeyboardButton(text="Перезагрузка", callback_data="reboot")
     ]
     
     for i in range(0, len(buttons)-1, 2):

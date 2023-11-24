@@ -29,7 +29,7 @@ services:
     container_name: keepinventory_main
     image: luck3rinc/keepinventory:latest
     build: ./app
-    restart: on-failure
+    restart: always
     environment:
       API_TOKEN: $API_TOKEN
       HOST: db

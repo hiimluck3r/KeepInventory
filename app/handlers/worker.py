@@ -230,7 +230,10 @@ async def change_device_process(message: types.Message, state: FSMContext):
         await custom_sql(sql, execute=True) 
     elif message.text is not None:
         sql = f"UPDATE devices SET {action} = $1 WHERE articleNumber = '{data['articleNumber']}'"
-        await custom_sql(sql, message.text, execute=True)
+        if action in ["quantity", "productionyear", "accountingyear"]:
+            await custom_sql(sql, int(message.text), execute=True) #production and accounting year, quantity
+        else:
+            await custom_sql(sql, message.text, execute=True)
     else:
         await message.answer(
             "Ошибка: некорректная информация.",

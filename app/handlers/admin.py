@@ -1,16 +1,18 @@
 import asyncio
 import sys
+import os
 from aiogram import types, Router, F
 from app.loader import dp, bot
 from app import ROOT
-from app.db.operations import get_users_by_role
+from app.db.operations import *
 from app.keyboards.reply import *
-from app.keyboards.inline import get_dashboard_menu
+from app.keyboards.inline import *
+from app.keyboards import get_username
+from app.states.admin_states import *
 from aiogram.filters import CommandObject
 from aiogram.filters.command import Command
-from app.keyboards import get_username
-from app.db.operations import *
 from app.filters.role_filter import RoleCheck
+from aiogram.fsm.context import FSMContext
 
 router = Router()
 
@@ -106,3 +108,32 @@ async def remove_admin(message: types.Message, command: CommandObject):
 """
 Greet message manipulation
 """
+
+@router.callback_query(F.data.startswith("changegreet"), RoleCheck("admin"))
+async def changegreet_callback(callback: types.CallbackQuery, state: FSMContext):
+    action = callback.data.split("_")[-1]
+    await state.set_state(GreetText.text)
+    await state.update_data(action = action)
+
+    await callback.message.answer("Введите текст приветственного сообщения:", reply_markup=reply_row_menu(["Отмена"]))
+    await callback.answer()
+
+@router.message(GreetText.text, RoleCheck("admin"), F.text)
+async def changegreet_process(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    action = data['action']
+    new_text = message.text
+    with open(f"app/greet_{action}.txt", "w") as greet:
+        greet.write(new_text)
+    await message.answer(f"Файл greet_{action}.txt был перезаписан. Изменения вступят в силу после перезагрузки бота.", reply_markup=get_menu())
+
+"""
+Reboot
+"""
+
+@router.callback_query(F.data == 'reboot', RoleCheck("admin"))
+async def reboot_callback(callback: types.CallbackQuery):
+    await callback.message.answer("Перезагружаем бота...")
+    await callback.answer()
+
+    exit()
