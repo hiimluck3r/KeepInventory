@@ -69,13 +69,12 @@ The project arose as an urgent need to find a toolkit for a quick inventory of t
 ## Getting Started | Начало работы
 <a name="getting-started"></a>
 The project is designed to run inside containers, so make sure you have a container engine installed (Docker is recommended).
-
-Проект предназначен для работы в контейнерах, поэтому убедитесь, что у вас установлен контейнерный движок (рекомендуется Docker).
+(Проект предназначен для работы в контейнерах, поэтому убедитесь, что у вас установлен контейнерный движок, рекомендуется Docker).
 
 ### Prerequisites | Зависимости
 <a name="prerequisites"></a>
 Make sure you have Docker installed.
-Убедитесь, что у вас установлен Docker.
+(Убедитесь, что у вас установлен Docker).
   
   ```sh
   docker -v
@@ -83,7 +82,7 @@ Make sure you have Docker installed.
 
 ### Installation
 <a name="installation"></a>
-1. Clone the repo (Клонируйте репозиторий)
+1. Clone the repo (Клонируйте репозиторий).
    ```sh
    git clone https://github.com/hiimluck3r/KeepInventory.git
    ```
@@ -160,6 +159,12 @@ Make sure you have Docker installed.
    ```sh
    docker-compose up
    ```
+4. Use `/initroot` command as a ROOT user inside a bot to initialize your role entry.
+(Используйте команду `/initroot` от имени ROOT пользователя внутри бота, чтобы инициализировать запись вашей роли).
+
+Detailed instructions for using the bot can be found in separate documentation. (Подробное руководство по использованию бота вы можете найти в отдельной документации.)
+
+<a href="https://github.com/hiimluck3r/KeepInventory/etc/docs.md"><strong>Docs | Документация »</strong></a>
 
 
 <!-- USAGE EXAMPLES -->
