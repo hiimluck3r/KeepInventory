@@ -201,7 +201,7 @@ Problematic Devices menu
 @router.message(F.text.lower() == "проблемные устройства", RoleCheck("spectator"))
 async def problematic_devices_menu(message: types.Message, state: FSMContext):
     articles = await get_problematic_devices()
-    if articles is not None:
+    if len(articles)!=0:
         article = articles[0]['articlenumber']
         await state.set_state(ProblematicDevices.init)
         keyboard = get_problematic_device_keyboard(article) if await role_check_function(message.from_user.id, "worker") else []
@@ -218,7 +218,7 @@ async def problematic_devices_menu(message: types.Message, state: FSMContext):
 @dp.callback_query(ProblematicDevices.init, PaginationValues.filter(F.action.in_(["next", "prev"])), RoleCheck("spectator"))
 async def problematic_devices_pageswap(callback: types.CallbackQuery, callback_data: PaginationValues):
     articles = await get_problematic_devices()
-    if articles is None:
+    if len(articles)==0:
         await message.answer("Проблемных устройств на данный момент не имеется.", reply_markup=get_menu())
     else:
         current_page = int(callback_data.page)

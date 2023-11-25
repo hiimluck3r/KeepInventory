@@ -387,7 +387,7 @@ async def delete_note_callback(callback: types.CallbackQuery, callback_data = Re
 @router.message(F.text.lower() == "доступные заметки", RoleCheck("worker"))
 async def notes_uploaded_menu(message: types.Message, state: FSMContext):
     notes = await get_notes()
-    if notes != None:
+    if len(notes) != 0:
         note_id = notes[0]['id']
         await state.set_state(Notes.init)
         keyboard = get_notes_keyboard(note_id)
@@ -401,7 +401,7 @@ async def notes_uploaded_menu(message: types.Message, state: FSMContext):
 @dp.callback_query(Notes.init, PaginationValues.filter(F.action.in_(["next", "prev"])), RoleCheck("worker"))
 async def notes_uploaded_pageswap(callback: types.CallbackQuery, callback_data: PaginationValues):
     notes = await get_notes()
-    if notes == None:
+    if len(notes) == 0:
         await message.answer(
             "На данный момент заметки отсутствуют.",
             reply_markup=reply_row_menu(["Добавить заметку", "Главное меню"])
@@ -534,7 +534,7 @@ async def delete_problem_callback(callback: types.CallbackQuery, callback_data =
 @router.message(F.text.lower() == "доступное по", RoleCheck("worker"))
 async def software_uploaded_menu(message: types.Message, state: FSMContext):
     software = await get_software()
-    if software != None:
+    if len(software) != 0:
         software_id = software[0]['id']
         await state.set_state(Software.init)
         keyboard = get_software_keyboard(software_id)
@@ -548,7 +548,7 @@ async def software_uploaded_menu(message: types.Message, state: FSMContext):
 @dp.callback_query(Software.init, PaginationValues.filter(F.action.in_(["next", "prev"])), RoleCheck("worker"))
 async def software_uploaded_pageswap(callback: types.CallbackQuery, callback_data: PaginationValues):
     software = await get_software()
-    if software == None:
+    if len(software)!=0:
         await message.answer(
             "На данный момент программное обеспечение отсутствует.",
             reply_markup=reply_row_menu(["Опубликовать ПО", "Главное меню"])
