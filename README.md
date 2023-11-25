@@ -175,11 +175,11 @@ KeepInventory was made to efficiently manage technical equipment with predefined
 
 * Article Recognition: The system also provides the ability to identify articles based on their last characters, simplifying the search process.
 
-* Software Register: KeepInventory includes a software register feature, allowing users to keep track of installed software on the equipment.
+* Software Register: KeepInventory includes a software register feature, allowing users to keep track of shared software.
 
-* User Notes: Users can add notes to equipment entries, providing additional information or reminders.
+* User Notes: Users can add notes, providing additional information or reminders.
 
-* Backup Functionality: The system facilitates downloading and uploading backups in .csv table format, ensuring data integrity and availability.
+* Backups: The system facilitates downloading and uploading backups in .csv table format, ensuring data integrity and availability.
 
 In the future, an enhancement is planned to incorporate a separate container with Telegram Local API. This addition will significantly increase the capacity for transferring data volumes, up to 2GB. Consequently, it will simplify the process of downloading and uploading data, particularly for full PostgreSQL backups and software storage on the server.
 </details>
@@ -188,17 +188,17 @@ In the future, an enhancement is planned to incorporate a separate container wit
 <summary>Русский</summary>
 KeepInventory создан для эффективного управления техническим оборудованием с заранее заданными атрибутами. Она предлагает ряд функций для оптимизации управления запасами:
 
-* Система ролей: Система поддерживает иерархическую систему ролей, предоставляя различные уровни доступа, такие как "только чтение", "рабочий", "администратор" и "root".
+* Система ролей: Система поддерживает иерархическую систему ролей, предоставляя различные уровни доступа, такие как "read-only", "worker", "admin" и "root".
 
 * Распознавание штрих-кодов: KeepInventory может распознавать артикулы по штрих-кодам, что позволяет легко искать и извлекать информацию из базы данных.
 
-* Распознавание артикулов: Система также позволяет идентифицировать статьи по их последним символам, что упрощает процесс поиска.
+* Распознавание артикулов: Система также позволяет идентифицировать артикулы по их последним символам, что упрощает процесс поиска.
 
-* Реестр программного обеспечения: KeepInventory включает в себя функцию регистрации программного обеспечения, позволяющую пользователям отслеживать установленное на оборудовании программное обеспечение.
+* Реестр программного обеспечения: KeepInventory включает в себя функцию регистрации программного обеспечения, позволяющую пользователям отслеживать программное обеспечение, которым поделились другие пользователи.
 
-* Заметки пользователя: Пользователи могут добавлять примечания к записям об оборудовании, предоставляя дополнительную информацию или напоминания.
+* Заметки пользователя: Пользователи могут добавлять примечения, предоставляя дополнительную информацию или напоминания.
 
-* Функциональность резервного копирования: Система позволяет загружать и выгружать резервные копии в формате таблиц .csv, обеспечивая целостность и доступность данных.
+* Резервное копирование: Система позволяет загружать и выгружать резервные копии в формате таблиц .csv, обеспечивая целостность и доступность данных.
 
 В будущем планируется расширение системы до отдельного контейнера с локальным API Telegram. Это дополнение значительно увеличит возможности по передаче объемов данных - до 2 ГБ. Соответственно, это упростит процесс загрузки и выгрузки данных, особенно при полном резервном копировании PostgreSQL и хранении программного обеспечения на сервере.
 </details>
