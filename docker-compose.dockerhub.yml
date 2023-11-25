@@ -19,15 +19,15 @@ services:
     image: dpage/pgadmin4
     restart: always
     environment:
-      PGADMIN_DEFAULT_EMAIL: $MAIL
-      PGADMIN_DEFAULT_PASSWORD: $PASS
+      PGADMIN_DEFAULT_EMAIL: example@example.com
+      PGADMIN_DEFAULT_PASSWORD: 123456
     ports:
       - "80:80"
 
   main:
     container_name: keepinventory_main
     image: luck3rinc/keepinventory:latest
-    restart: on-failure
+    restart: always
     environment:
       API_TOKEN: $API_TOKEN
       HOST: $HOST
