@@ -11,6 +11,7 @@
     Telegram bot for inventory of tech, software, and notes.
     <br />
     Телеграм-бот для инвентаризации техники, ПО и заметок.
+    <br />
     <a href="https://github.com/hiimluck3r/KeepInventory"><strong>Explore the docs »</strong></a>
     <br />
     <br />
