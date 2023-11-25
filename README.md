@@ -51,34 +51,29 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project | О проекте
-
+<a name="about-the-project"></a>
 The project arose as an urgent need to find a toolkit for a quick inventory of technology in an educational institution. The bot was also created for educational purposes and was submitted as a course project.
 
 Проект возник из-за острой необходимости найти инструментарий для быстрой инвентаризации технологий в образовательном учреждении. Бот также был создан в образовательных целях и был представлен в качестве курсового проекта.
 
-<p align="right">(<a href="#readme-top">Back to top | Наверх</a>)</p>
-
-
 
 ### Built With | Стек технологий
-
+<a name="built-with"></a>
 * Python (OpenCV, pyzbar, aiogram, asyncpg)
 * PostgreSQL
 * Docker
-
-<p align="right">(<a href="#readme-top">Back to top | Наверх</a>)</p>
 
 
 
 <!-- GETTING STARTED -->
 ## Getting Started | Начало работы
-
+<a name="getting-started"></a>
 The project is designed to run inside containers, so make sure you have a container engine installed (Docker is recommended).
 
 Проект предназначен для работы в контейнерах, поэтому убедитесь, что у вас установлен контейнерный движок (рекомендуется Docker).
 
 ### Prerequisites | Зависимости
-
+<a name="prerequisites"></a>
 Make sure you have Docker installed.
 Убедитесь, что у вас установлен Docker.
   
@@ -87,7 +82,7 @@ Make sure you have Docker installed.
   ```
 
 ### Installation
-
+<a name="installation"></a>
 1. Clone the repo (Клонируйте репозиторий)
    ```sh
    git clone https://github.com/hiimluck3r/KeepInventory.git
@@ -166,12 +161,10 @@ Make sure you have Docker installed.
    docker-compose up
    ```
 
-<p align="right">(<a href="#readme-top">Back to top | Наверх</a>)</p>
-
-
 
 <!-- USAGE EXAMPLES -->
 ## Usage | Использование
+<a name="usage"></a>
 <details>
 <summary>English</summary>
 KeepInventory was made to efficiently manage technical equipment with predefined attributes. It offers a range of features to streamline inventory management:
@@ -211,14 +204,9 @@ KeepInventory создан для эффективного управления 
 </details>
 
 
-
-<p align="right">(<a href="#readme-top">Back to top | Наверх</a>)</p>
-
-
-
 <!-- CONTRIBUTING -->
 ## Contributing | Сотрудничество
-
+<a name="contributing"></a>
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
 If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
@@ -236,27 +224,26 @@ Don't forget to give the project a star! Thanks again!
 4. Push to the Branch (Переместите изменения в ветку) (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request (Откройте Pull Request)
 
-<p align="right">(<a href="#readme-top">Back to top | Наверх</a>)</p>
 
 
 
 <!-- LICENSE -->
 ## License | Лицензия
-
+<a name="license"></a>
 Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 Распространяется под лицензией MIT. Дополнительную информацию см. в файле `LICENSE.txt`.
 
-<p align="right">(<a href="#readme-top">Back to top | Наверх</a>)</p>
 
 
 
 <!-- CONTACT -->
 ## Contact | Контакты
-
+<a name="contact"></a>
 * Telegram: https://t.me/hiimluck3r
 * Telegram Channel: https://t.me/imluck3r
 * VK: https://vk.com/hiimluck3r
 
 
-<p align="right">(<a href="#readme-top">Back to top | Наверх</a>)</p>
+
+<!--MARKDOWN ANCHORS -->
