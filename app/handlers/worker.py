@@ -44,6 +44,7 @@ async def new_device_article_process(message: types.Message, state: FSMContext):
             "Устройство с таким артикулом уже существует.",
             reply_markup=get_menu()
         )
+    await state.clear()
 
 @router.callback_query(F.data.startswith('create'), RoleCheck("worker"))
 async def create_device_callback(callback: types.CallbackQuery, state: FSMContext):
@@ -416,7 +417,7 @@ async def notes_uploaded_pageswap(callback: types.CallbackQuery, callback_data: 
             page = current_page+1 if current_page<(len(notes)-1) else 0 #next page
         
         with suppress(TelegramBadRequest):
-            note_id = note[page]['id']
+            note_id = notes[page]['id']
             keyboard = get_software_keyboard(note_id)
             await callback.message.edit_text(
                 await get_notes_info(note_id),

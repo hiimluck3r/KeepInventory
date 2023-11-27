@@ -212,6 +212,7 @@ async def changegreet_process(message: types.Message, state: FSMContext):
     data = await state.get_data()
     action = data['action']
     new_text = message.text
+    await state.clear()
     with open(f"app/greet_{action}.txt", "w") as greet:
         greet.write(new_text)
     await message.answer(f"Файл greet_{action}.txt был перезаписан. Изменения вступят в силу после перезагрузки бота.", reply_markup=get_menu())

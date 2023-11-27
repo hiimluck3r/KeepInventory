@@ -35,3 +35,12 @@ async def get_start(message: types.Message, state: FSMContext):
 @router.message(Command("id"))
 async def my_id(message: types.Message):
     await message.answer(f"```{message.from_user.id}```", parse_mode="MarkdownV2")
+
+@router.message(F.text.lower()=="github")
+async def get_start(message: types.Message, state: FSMContext):
+    await message.answer("https://github.com/hiimluck3r/KeepInventory")
+
+
+@router.message(F.text.lower()=="контакты")
+async def get_start(message: types.Message, state: FSMContext):
+    await message.answer("https://linktr.ee/hiimluck3r")

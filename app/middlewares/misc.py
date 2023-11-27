@@ -32,7 +32,7 @@ async def get_notes_info(id):
     sql = f"SELECT * FROM notes WHERE id = {id}"
     data = await custom_sql(sql, fetchrow=True)
     header = data['header']
-    description = data['header']
+    description = data['description']
     user = await get_username(data['userid'])
 
     notes_info+=f"<b>{header}</b>\n\n"
