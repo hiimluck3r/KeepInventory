@@ -53,8 +53,8 @@ Barcode search
 @router.message(F.text=="Поиск по штрих-коду", RoleCheck("spectator"))
 async def barcode_search(message: types.Message, state: FSMContext):
     await message.answer(
-        f"Пришлите фотографию, на которой чётко видно штрих-код",
-        reply_markup=reply_row_menu(["Отмена"])
+        "Пришлите фотографию, на которой чётко видно штрих-код",
+        reply_markup=reply_row_menu(["Отмена"]),
     )
     await state.set_state(BarcodeImage.image)
 
@@ -121,8 +121,8 @@ Article search
 @router.message(F.text=="Поиск по артикулу", RoleCheck("spectator"))
 async def article_search(message: types.Message, state: FSMContext):
     await message.answer(
-        f"Введите последние символы артикула (чем больше символов - тем меньше выборка):",
-        reply_markup=reply_row_menu(["Отмена"])
+        "Введите последние символы артикула (чем больше символов - тем меньше выборка):",
+        reply_markup=reply_row_menu(["Отмена"]),
     )
     await state.set_state(ArticleSearch.article)
 

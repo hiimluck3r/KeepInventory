@@ -35,19 +35,18 @@ async def get_device_info(articleNumber):
     return device_info, result['photo']
 
 async def multiple_articles(articleNumberIncomplete):
-    sql = f"SELECT articleNumber FROM devices WHERE articleNumber ILIKE ('%' || $1)"
+    sql = "SELECT articleNumber FROM devices WHERE articleNumber ILIKE ('%' || $1)"
     articles = await custom_sql(sql, articleNumberIncomplete, fetch=True)
     if not articles:
         return False, f"Артикулов с подстрокой {articleNumberIncomplete} не найдено.", []
-    else:
-        articles_clear = []
-        answer_text = f"Артикулы с подстрокой {articleNumberIncomplete}:\n"
-        for i in range(len(articles)):
-            item = articles[i]['articlenumber']
-            articles_clear.append(item)
-            answer_text+=f"{i+1}. {item}\n"
-        answer_text+=f"\nВведите номер интересующего вас артикула:"
-        return True, answer_text, articles_clear
+    articles_clear = []
+    answer_text = f"Артикулы с подстрокой {articleNumberIncomplete}:\n"
+    for i in range(len(articles)):
+        item = articles[i]['articlenumber']
+        articles_clear.append(item)
+        answer_text+=f"{i+1}. {item}\n"
+    answer_text+=f"\nВведите номер интересующего вас артикула:"
+    return True, answer_text, articles_clear
 
 async def get_problematic_devices():
     sql = "SELECT articleNumber FROM problematicDevices"
