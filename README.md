@@ -12,7 +12,7 @@
     <br />
     Телеграм-бот для инвентаризации техники, ПО и заметок.
     <br />
-    <a href="https://github.com/hiimluck3r/KeepInventory/etc/docs.md"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/hiimluck3r/KeepInventory/blob/master/etc/docs.md"><strong>Explore the docs »</strong></a>
     <br />
     <br />
     <a href="https://github.com/hiimluck3r/KeepInventory/issues">Report Bug</a>
@@ -164,7 +164,7 @@ Make sure you have Docker installed.
 
 Detailed instructions for using the bot can be found in separate documentation. (Подробное руководство по использованию бота вы можете найти в отдельной документации.)
 
-<a href="https://github.com/hiimluck3r/KeepInventory/etc/docs.md"><strong>Docs | Документация »</strong></a>
+<a href="https://github.com/hiimluck3r/KeepInventory/blob/master/etc/docs.md"><strong>Docs | Документация »</strong></a>
 
 
 <!-- USAGE EXAMPLES -->
