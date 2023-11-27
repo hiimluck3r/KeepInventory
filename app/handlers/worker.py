@@ -164,7 +164,7 @@ async def create_device_photo_callback(message: types.Message, state: FSMContext
 @router.message(NewDevice.confirmation, RoleCheck("worker"), F.text.lower()=="да")
 async def create_device_confirmation_callback(message: types.Message, state: FSMContext):
     data = await state.get_data()
-    sql = f"""INSERT INTO devices(articleNumber, 
+    sql = """INSERT INTO devices(articleNumber, 
     category, subcategory, 
     name, quantity, productionYear, 
     accountingYear, location, 
@@ -351,8 +351,8 @@ async def new_note_description_process(message: types.Message, state: FSMContext
     userid = data['userid']
     header = data['header']
     description = message.text
-    
-    sql = f"""INSERT INTO notes(userid, header, description) 
+
+    sql = """INSERT INTO notes(userid, header, description) 
     VALUES ($1, $2, $3)"""
 
     await custom_sql(sql, int(userid), header, description, execute=True)
@@ -464,7 +464,7 @@ async def new_software_description_process(message: types.Message, state: FSMCon
     filename = data['filename']
     fileurl = data['fileurl']
 
-    sql = f"""INSERT INTO software(userid, filename, fileurl, description) 
+    sql = """INSERT INTO software(userid, filename, fileurl, description) 
     VALUES ($1, $2, $3, $4)"""
 
     await custom_sql(sql, int(userid), filename, fileurl, description, execute=True)
@@ -508,14 +508,14 @@ async def redact_software_process(message: types.Message, state: FSMContext):
     data = await state.get_data()
     action = data['action'].split('_')[-1] #change action
     software_id = data['software_id']
-    if action == 'name':
+    if action == 'description':
+        sql = f"UPDATE software SET description = $1 WHERE id = {software_id}"
+    elif action == 'name':
         sql = f"UPDATE software SET filename = $1 WHERE id = {software_id}"
     elif action == 'url':
         sql = f"UPDATE software SET fileurl = $1 WHERE id = {software_id}"
-    elif action == 'description':
-        sql = f"UPDATE software SET description = $1 WHERE id = {software_id}"
     else:
-        sql = f"SELECT 1 FROM software" #donothing
+        sql = "SELECT 1 FROM software"
     await custom_sql(sql, message.text, execute=True)
     await message.answer("Изменения внесены.", reply_markup=get_menu())
     await state.clear()

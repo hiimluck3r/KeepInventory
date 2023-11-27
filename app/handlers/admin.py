@@ -152,7 +152,9 @@ async def make_role(message: types.Message, command: CommandObject): # /make use
 async def remove_role(message: types.Message, command: CommandObject): # /rm userid
     if command.args:
         userid = int(command.args)
-        role = await custom_sql(f"SELECT role FROM users WHERE userid = $1", userid, fetchval=True)
+        role = await custom_sql(
+            "SELECT role FROM users WHERE userid = $1", userid, fetchval=True
+        )
         if role!=2:
             try:
                 result = await delete_user(userid)
@@ -178,12 +180,14 @@ async def make_admin(message: types.Message, command: CommandObject): # /makeadm
 async def remove_admin(message: types.Message, command: CommandObject):
     if command.args:
         userid = int(command.args)
-        role = await custom_sql(f"SELECT role FROM users WHERE userid = $1", userid, fetchval=True)
+        role = await custom_sql(
+            "SELECT role FROM users WHERE userid = $1", userid, fetchval=True
+        )
         if role==2:
             try:
                 result = await delete_user(userid)
                 await message.answer(f"Пользователь {await get_username(userid)} удалён из списка администраторов.")
-                
+
             except Exception as e:
                 await message.answer(f"Exception found: {e}")
         else:
@@ -234,14 +238,14 @@ Logs
 @router.callback_query(F.data == 'logs', RoleCheck("admin"))
 async def logs_callback(callback: types.CallbackQuery, state: FSMContext):
     
-    directory = f"/~/KeepInventory/logs"
+    directory = "/~/KeepInventory/logs"
     logs = get_filenames(directory)
     print(len(logs), file=sys.stderr)
     if len(logs) != 0:
         answer_text = f"<b>Список доступных логов:</b>\n\n"
         for index, log in enumerate(logs):
             answer_text+=f"{index+1}. {log}\n"
-        
+
         answer_text+=f"\nОтправьте номер лога, который хотите прочитать:"
         await state.set_state(Logs.confirmation)
         await state.update_data(logs = logs)
@@ -291,12 +295,14 @@ async def delete_current_log_process(callback: types.CallbackQuery, callback_dat
 
 @router.callback_query(LogsInfo.filter(F.action == "delete_all_logs"), RoleCheck("admin"))
 async def delete_all_logs_process(callback: types.CallbackQuery, callback_data=LogsInfo):
-    directory = f"/~/KeepInventory/logs"
+    directory = "/~/KeepInventory/logs"
     logs = get_filenames(directory)
     try:
         for log in logs:
             remove(f"{directory}/{log}")
-        await callback.message.answer(f"Лог-файлы были удалены.", reply_markup=get_menu())
+        await callback.message.answer(
+            "Лог-файлы были удалены.", reply_markup=get_menu()
+        )
     except Exception as e:
         await callback.message.answer(f"Возникла непредвиденная ошибка: {e}.")
     finally:

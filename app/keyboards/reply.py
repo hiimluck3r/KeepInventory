@@ -14,7 +14,13 @@ def reply_column_menu(buttons):
     return builder.as_markup(resize_keyboard=True)
 
 def get_menu():
-    keyboard = reply_column_menu(["Поиск по штрих-коду", "Поиск по артикулу", "Новое устройство", "Заметки", "Программное обеспечение",
-    "Проблемные устройства"])
-
-    return keyboard
+    return reply_column_menu(
+        [
+            "Поиск по штрих-коду",
+            "Поиск по артикулу",
+            "Новое устройство",
+            "Заметки",
+            "Программное обеспечение",
+            "Проблемные устройства",
+        ]
+    )
