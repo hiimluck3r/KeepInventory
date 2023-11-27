@@ -54,10 +54,13 @@
 
 ### Начало работы
 ![Главное меню](/etc/images/main_menu.png)
+
 Очевидно, что с самого начала у нас нет устройств. Обратимся через главное меню к разделу "Новое устройство" для создания нового.
 ![Новое устройство](/etc/images/create_new_device_start.png)
+
 Если устройство не было найдено, то пользователям с ролью WORKER и выше будет предложено создать новую запись.
 ![Создать новую запись 1](/etc/images/create_new_device_process_first.png)
+
 При возможности мы можем приложить фотографию:
 ![Создать новую запись 2](/etc/images/create_new_device_process_second.png)
 
@@ -213,10 +216,13 @@ users
 
 ### Getting started
 ![Main Menu](/etc/images/main_menu.png)
+
 Obviously, from the very beginning we have no devices. Let's go through the main menu to the "New device" section to create a new one.
 ![New Device](/etc/images/create_new_device_start.png)
+
 If the device was not found, then users with the WORKER role and above will be prompted to create a new record.
 ![Create a new entry 1](/etc/images/create_new_device_process_first.png)
+
 If possible, we can attach a photo:
 ![Create New Entry 2](/etc/images/create_new_device_process_second.png)
 
