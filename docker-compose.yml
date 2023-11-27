@@ -1,0 +1,46 @@
+version: '3.9'
+services:
+  db:
+    container_name: db
+    image: luck3rinc/keepinventory_db:latest
+    build: ./postgresql
+    restart: always
+    environment:
+      POSTGRES_USER: $DBUSER
+      POSTGRES_PASSWORD: $PASSWORD
+      POSTGRES_DB: $DB
+    volumes:
+      - ./postgresql:/docker-entrypoint-initdb.d
+      - ./postgresql/data:/var/lib/postgresql/data
+
+  pgadmin:
+    container_name: pgadmin4_container
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: example@example.com
+      PGADMIN_DEFAULT_PASSWORD: example123
+    ports:
+      - "80:80"
+
+  main:
+    container_name: keepinventory_main
+    image: luck3rinc/keepinventory:latest
+    build: ./app
+    restart: always
+    environment:
+      API_TOKEN: $API_TOKEN
+      HOST: db
+      DB: $DB
+      DBUSER: $DBUSER
+      PASSWORD: $PASSWORD
+      ROOT: $ROOT
+      PORT: 5432
+    volumes:
+      - ./app:/~/KeepInventory/app
+      - ./logs:/~/KeepInventory/logs
+    depends_on:
+      - db
+
+volumes:
+  logs:
