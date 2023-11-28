@@ -290,7 +290,7 @@ As we can see, we don't have such a barcode, so the bot offers us to write it do
 
 ![Data Editing](/etc/images/information_by_article.png)
 
-Back to our devices. As you may have noticed, there are many buttons under the description, each of which is responsible for editing a certain parameter. Only users with the WORKER role and older have access to them.
+Back to our devices. As you may have noticed, there are many buttons under the description, each of which is responsible for editing a certain parameter. Only users with the WORKER role and higher have access to them.
 
 In addition to the ability to edit and delete devices, we have the ability to declare the device ***problematic***.
 
