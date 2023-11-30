@@ -1,11 +1,11 @@
 CREATE TABLE users(
     id INTEGER PRIMARY KEY generated always as IDENTITY,
-    userid BIGINT UNIQUE,
+    userid BIGINT NOT NULL UNIQUE,
     role SMALLINT);
 
 CREATE TABLE devices(
     id INTEGER PRIMARY KEY generated always as IDENTITY,
-    articleNumber VARCHAR UNIQUE,
+    articleNumber VARCHAR NOT NULL UNIQUE,
     category VARCHAR, 
     subcategory VARCHAR,
     name VARCHAR(255),
@@ -23,7 +23,7 @@ CREATE TABLE devices(
 CREATE TABLE problematicDevices(
     id INTEGER PRIMARY KEY generated always as IDENTITY,
     status BOOLEAN,
-    articleNumber VARCHAR UNIQUE REFERENCES devices(articleNumber)
+    articleNumber VARCHAR UNIQUE NOT NULL REFERENCES devices(articleNumber)
     ON DELETE CASCADE ON UPDATE CASCADE,
     problemDescription VARCHAR,
     solutionDescription VARCHAR,
