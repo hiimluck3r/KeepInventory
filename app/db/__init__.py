@@ -39,6 +39,8 @@ class DatabaseClass:
                         tableName, source = f'app/uploaded_backups/{tableName}.csv',
                         format = 'csv'
                     )
+                    sql = f"SELECT setval(pg_get_serial_sequence('public.{tableName}','id'), max(id)) FROM public.{tableName}"
+                    setval_result = await connection.execute(command)
         return result
 
 database = DatabaseClass()
