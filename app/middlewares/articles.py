@@ -3,18 +3,18 @@ from app.keyboards import get_username
 import sys
 
 async def article_guard(articleNumber):
-    sql = f"SELECT EXISTS(SELECT 1 FROM devices WHERE articleNumber = '{articleNumber}')"
-    result = await custom_sql(sql, fetchval=True)
+    sql = f"SELECT EXISTS(SELECT 1 FROM devices WHERE articleNumber = $1)"
+    result = await custom_sql(sql, articleNumber, fetchval=True)
     return result == True
 
 async def problematic_device_guard(articleNumber):
-    sql = f"SELECT EXISTS(SELECT 1 FROM problematicDevices WHERE articleNumber = '{articleNumber}')"
-    result = await custom_sql(sql, fetchval=True)
+    sql = f"SELECT EXISTS(SELECT 1 FROM problematicDevices WHERE articleNumber = $1)"
+    result = await custom_sql(sql, articleNumber, fetchval=True)
     return result == True
 
 async def get_device_info(articleNumber):
-    sql = f"SELECT * FROM devices WHERE articleNumber = '{articleNumber}'"
-    result = await custom_sql(sql, fetchrow=True)
+    sql = f"SELECT * FROM devices WHERE articleNumber = $1"
+    result = await custom_sql(sql, articleNumber, fetchrow=True)
     print(f"resulting row at the device info is: {result}", file=sys.stderr)
     device_info = f"Информация об устройстве: {articleNumber}\n"
     
@@ -55,9 +55,9 @@ async def get_problematic_devices():
 
 async def get_problematic_device_info(articleNumber):
     device_info = ''
-    sql = f"""SELECT * FROM problematicDevices WHERE articleNumber = '{articleNumber}'
+    sql = f"""SELECT * FROM problematicDevices WHERE articleNumber = $1
     """
-    data = await custom_sql(sql, fetchrow=True)
+    data = await custom_sql(sql, articleNumber, fetchrow=True)
     status = data['status']
     problemDescription = data['problemdescription']
     solutionDescription = data['solutiondescription']
