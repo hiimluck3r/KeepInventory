@@ -1,21 +1,21 @@
 CREATE TABLE users(
-    id INTEGER PRIMARY KEY generated always as IDENTITY,
-    userid BIGINT NOT NULL UNIQUE,
+    id INTEGER UNIQUE generated always as IDENTITY,
+    userid BIGINT PRIMARY KEY,
     role SMALLINT);
 
 CREATE TABLE devices(
-    id INTEGER PRIMARY KEY generated always as IDENTITY,
-    articleNumber VARCHAR NOT NULL UNIQUE,
+    id INTEGER UNIQUE generated always as IDENTITY,
+    articleNumber VARCHAR PRIMARY KEY,
     category VARCHAR, 
     subcategory VARCHAR,
-    name VARCHAR(255),
+    name VARCHAR,
     quantity BIGINT,
     productionYear SMALLINT,
     accountingYear SMALLINT,
     location VARCHAR(255),
     ownership VARCHAR(255),
     photo VARCHAR);
-    
+
 --I mean, we can create another table with categories
 --So there won't be any naming duplicates
 --But it's harder to modify specific item, so I'll leave it be in terms of flexibility
