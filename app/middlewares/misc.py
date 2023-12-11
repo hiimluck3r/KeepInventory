@@ -8,9 +8,9 @@ async def get_software():
 
 async def get_software_info(id):
     software_info = ''
-    sql = f"""SELECT * FROM software WHERE id = {id}
+    sql = f"""SELECT * FROM software WHERE id = $1
     """
-    data = await custom_sql(sql, fetchrow=True)
+    data = await custom_sql(sql, id, fetchrow=True)
     filename = data['filename']
     fileurl = data['fileurl'] #20 or 50mb limit made me do so (I don't want to setup local api... yet)
     description = data['description']
@@ -29,8 +29,8 @@ async def get_notes():
 
 async def get_notes_info(id):
     notes_info = ''
-    sql = f"SELECT * FROM notes WHERE id = {id}"
-    data = await custom_sql(sql, fetchrow=True)
+    sql = f"SELECT * FROM notes WHERE id = $1"
+    data = await custom_sql(sql, id, fetchrow=True)
     header = data['header']
     description = data['description']
     user = await get_username(data['userid'])
