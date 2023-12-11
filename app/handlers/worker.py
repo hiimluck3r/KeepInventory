@@ -227,14 +227,14 @@ async def change_device_process(message: types.Message, state: FSMContext):
 
     if action == 'photo':
         photo_id = message.photo[-1].file_id if message.photo is not None else '-'
-        sql = f"UPDATE devices SET {action} = '{photo_id}' WHERE articleNumber = '{data['articleNumber']}'"
-        await custom_sql(sql, execute=True) 
+        sql = f"UPDATE devices SET photo = $1 WHERE articleNumber = $2"
+        await custom_sql(sql, photo_id, data['articleNumber'], execute=True) 
     elif message.text is not None:
-        sql = f"UPDATE devices SET {action} = $1 WHERE articleNumber = '{data['articleNumber']}'"
+        sql = f"UPDATE devices SET {action} = $1 WHERE articleNumber = $2"
         if action in ["quantity", "productionyear", "accountingyear"]:
-            await custom_sql(sql, int(message.text), execute=True) #production and accounting year, quantity
+            await custom_sql(sql, int(message.text), data['articleNumber'], execute=True) #production and accounting year, quantity
         else:
-            await custom_sql(sql, message.text, execute=True)
+            await custom_sql(sql, message.text, data['articleNumber'], execute=True)
     else:
         await message.answer(
             "Ошибка: некорректная информация.",
@@ -249,8 +249,8 @@ async def change_device_process(message: types.Message, state: FSMContext):
 @router.callback_query(RedactDevice.filter(F.action.startswith("delete")), RoleCheck("worker"))
 async def delete_device_process(callback: types.CallbackQuery, callback_data = RedactDevice):
     articleNumber = callback_data.articleNumber
-    sql = f"DELETE FROM devices WHERE articleNumber = '{articleNumber}'"
-    await custom_sql(sql, execute=True)
+    sql = f"DELETE FROM devices WHERE articleNumber = $1"
+    await custom_sql(sql, articleNumber, execute=True)
     await callback.message.answer("Устройство удалено.", reply_markup=get_menu())
     await callback.answer()
     
@@ -300,24 +300,24 @@ async def redact_problem_process(message: types.Message, state: FSMContext):
     action = data['action'].split('_')[-1] #change action
     articleNumber = data['articleNumber']
     if action == 'solution':
-        sql = f"UPDATE problematicDevices SET solutionDescription = $1 WHERE articleNumber = '{articleNumber}'"
+        sql = f"UPDATE problematicDevices SET solutionDescription = $1 WHERE articleNumber = $2"
     else:
-        sql = f"UPDATE problematicDevices SET problemDescription = $1 WHERE articleNumber = '{articleNumber}'"
-    await custom_sql(sql, message.text, execute=True)
+        sql = f"UPDATE problematicDevices SET problemDescription = $1 WHERE articleNumber = $2"
+    await custom_sql(sql, message.text, articleNumber, execute=True)
     await message.answer("Изменения внесены.", reply_markup=get_menu())
     await state.clear()
 
 @router.callback_query(RedactProblematicDevice.filter(F.action == "problematic_delete"), RoleCheck("worker"))
 async def delete_problem_callback(callback: types.CallbackQuery, callback_data = RedactProblematicDevice):
-    sql = f"DELETE FROM problematicDevices WHERE articleNumber = '{callback_data.articleNumber}'"
-    await custom_sql(sql, execute=True)
+    sql = f"DELETE FROM problematicDevices WHERE articleNumber = $1"
+    await custom_sql(sql, callback_data.articleNumber, execute=True)
     await callback.message.answer("Устройство удалено из списка проблемных.", reply_markup=get_menu())
     await callback.answer()
 
 @router.callback_query(RedactProblematicDevice.filter(F.action == "problematic_complete"), RoleCheck("worker"))
 async def complete_problem_callback(callback: types.CallbackQuery, callback_data = RedactProblematicDevice):
-    sql = f"UPDATE problematicDevices SET status = true WHERE articleNumber = '{callback_data.articleNumber}'"
-    await custom_sql(sql, execute=True)
+    sql = f"UPDATE problematicDevices SET status = true WHERE articleNumber = $1"
+    await custom_sql(sql, callback_data.articleNumber, execute=True)
     await callback.message.answer("Устройство обозначено как исправленное.", reply_markup=get_menu())
     await callback.answer()
 
@@ -371,16 +371,16 @@ async def redact_note_description_callback(callback: types.CallbackQuery, state:
 async def redact_note_description_process(message: types.Message, state: FSMContext):
     data = await state.get_data()
     note_id = data['note_id']
-    sql = f"UPDATE notes SET description = $1 WHERE id = {note_id}"
-    await custom_sql(sql, message.text, execute=True)
+    sql = f"UPDATE notes SET description = $1 WHERE id = $2"
+    await custom_sql(sql, message.text, note_id, execute=True)
     await message.answer("Изменения внесены.", reply_markup=get_menu())
     await state.clear()
 
 #Delete note record
 @router.callback_query(RedactSoftware.filter(F.action == "notes_delete"), RoleCheck("worker"))
 async def delete_note_callback(callback: types.CallbackQuery, callback_data = RedactSoftware):
-    sql = f"DELETE FROM notes WHERE id = '{callback_data.id}'"
-    await custom_sql(sql, execute=True)
+    sql = f"DELETE FROM notes WHERE id = $1"
+    await custom_sql(sql, callback_data.id, execute=True)
     await callback.message.answer("Заметка удалена.", reply_markup=get_menu())
     await callback.answer()
 
@@ -509,22 +509,22 @@ async def redact_software_process(message: types.Message, state: FSMContext):
     action = data['action'].split('_')[-1] #change action
     software_id = data['software_id']
     if action == 'name':
-        sql = f"UPDATE software SET filename = $1 WHERE id = {software_id}"
+        sql = f"UPDATE software SET filename = $1 WHERE id = $2"
     elif action == 'url':
-        sql = f"UPDATE software SET fileurl = $1 WHERE id = {software_id}"
+        sql = f"UPDATE software SET fileurl = $1 WHERE id = $2"
     elif action == 'description':
-        sql = f"UPDATE software SET description = $1 WHERE id = {software_id}"
+        sql = f"UPDATE software SET description = $1 WHERE id = $2"
     else:
         sql = f"SELECT 1 FROM software" #donothing
-    await custom_sql(sql, message.text, execute=True)
+    await custom_sql(sql, message.text, software_id, execute=True)
     await message.answer("Изменения внесены.", reply_markup=get_menu())
     await state.clear()
 
 #Delete software record
 @router.callback_query(RedactSoftware.filter(F.action == "software_delete"), RoleCheck("worker"))
 async def delete_problem_callback(callback: types.CallbackQuery, callback_data = RedactSoftware):
-    sql = f"DELETE FROM software WHERE id = '{callback_data.id}'"
-    await custom_sql(sql, execute=True)
+    sql = f"DELETE FROM software WHERE id = $1"
+    await custom_sql(sql, {callback_data.id}, execute=True)
     await callback.message.answer(
         "Выбранное ПО было удалено.",
         reply_markup=get_menu()
